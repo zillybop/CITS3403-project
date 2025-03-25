@@ -14,133 +14,95 @@ Please think carefully about the design of the application. It should be:
 -   _Engaging_, so that it looks good and focuses the user on important elements of the application.
 -   _Effective_, so it produces value for the user, by providing information, entertainment or community.
 -   _Intuitive_, so that it is easy for a user to use.
+
+----
+
+# Requirements
+- _Upload_ - "upload private data"
+- _Analyse_ - "view automated analysis of their data"
+- _Share_ - "selectively share the results with other users"
+
 # Ideas
-## Dungeons and dragons:
-- Upload: Open character sheet into website/save character details from it
-- Data Analysis
-
+### Dungeons and Dragons Character Sheet
+- _Upload_:
+	- User inputs their character details the first time they use the site as part of the character creation process.
+	- User is able to download their character as a file (`.JSON`?) and re-upload it next time they use the site.
+	- Character is also stored on the server under the users account.
+- _Analyse_:
+	- Calculate stats like ability modifiers, armour-class, etc. for each character.
+	- Provide info like user's favorite species, class, etc. based on all the characters they've got on their account.
+- _Share_:
+	- Allow other users to see your characters.
 - Pros:
-	- Cool format to upload
+	- Cool format to upload.
 - Cons:
-	- Don't really know D&D that much
+	- Only one of us would be familiar with the D&D part of the project.
 
-
-## Club Manager:
-- Upload: Member list (details?) 
-- Data Analysis: Attendence/membership over time, finances. 
-
+### Club Manager
+- _Upload_:
+	- Initial list of club members and their details.
+	- Ability to add new members.
+	- Financial data.
+	- Slightly worried about the "private" part. 
+- _Analyse_:
+	- Membership over time.
+	- Finances. 
+- _Share_:
+	- Share club membership and finance info with club members.
 - Pros:
-	- clubs on campus
+	- Clubs on campus.
 - Cons:
-	- We don't know much about how clubs currently operate 
+	- Ignorance of club operations.
 
-## Shortcut Racer:
-- Upload: (maybe) code snippets to edit
-- Data Analysis: speed, % of people who can solve it, (% who used command)
-
+### Shortcut Racer
+- _Upload_:
+	- Users can upload their own code snippets (and modified snippets) to try.
+- _Analyse_:
+	- Speed, % of people who can solve it, (% who used command).
+- _Share_:
+	- `pass`
 - Pros:
-	-	Computer science
+	- Computer science
 - Cons:
 	- Analysis is a bit drawn out
 
-## Music ~
-- Upload: no idea ( maybe a specific chord or progression)
-- Data Analysis: music theory analysis of whatever info -- what chord it makes, parts of it, modes
-
+### Music ~
+- _Upload_:
+	- No idea ( maybe a specific chord or progression).
+- _Analyse_:
+	- Music theory analysis of whatever info -- what chord it makes, parts of it, modes.
+- _Share_:
+	- `pass`
 - Pros:
-	- ....
-- Cons
-
-## Probability Visualiser
-- Upload: your own dataset
-- Data Analysis: normal distributions, binomial theorem
-
-- Pros:
-	- Very data science
+	- `pass`
 - Cons:
-	- Probably hard
+	- `pass`
 
-
-
-- The workspace synchronization will sync all your files, folders and settings automatically. This will allow you to fetch your workspace on any other device.
-	> To start syncing your workspace, just sign in with Google in the menu.
-
-- The file synchronization will keep one file of the workspace synced with one or multiple files in **Google Drive**, **Dropbox** or **GitHub**.
-	> Before starting to sync files, you must link an account in the **Synchronize** sub-menu.
-
-## Open a file
-
-You can open a file from **Google Drive**, **Dropbox** or **GitHub** by opening the **Synchronize** sub-menu and clicking **Open from**. Once opened in the workspace, any modification in the file will be automatically synced.
-
-## Save a file
-
-You can save any file of the workspace to **Google Drive**, **Dropbox** or **GitHub** by opening the **Synchronize** sub-menu and clicking **Save on**. Even if a file in the workspace is already synced, you can save it to another location. StackEdit can sync one file with multiple locations and accounts.
-
-## Synchronize a file
-
-Once your file is linked to a synchronized location, StackEdit will periodically synchronize it by downloading/uploading any modification. A merge will be performed if necessary and conflicts will be resolved.
-
-If you just have modified your file and you want to force syncing, click the **Synchronize now** button in the navigation bar.
-
-> **Note:** The **Synchronize now** button is disabled if you have no file to synchronize.
-
-## Manage file synchronization
-
-Since one file can be synced with multiple locations, you can list and manage synchronized locations by clicking **File synchronization** in the **Synchronize** sub-menu. This allows you to list and remove synchronized locations that are linked to your file.
-
-## Update a publication
-
-After publishing, StackEdit keeps your file linked to that publication which makes it easy for you to re-publish it. Once you have modified your file and you want to update your publication, click on the **Publish now** button in the navigation bar.
-
-> **Note:** The **Publish now** button is disabled if your file has not been published yet.
-
-## Manage file publication
-
-Since one file can be published to multiple locations, you can list and manage publish locations by clicking **File publication** in the **Publish** sub-menu. This allows you to list and remove publication locations that are linked to your file.
-
-
-# Markdown extensions
-
-StackEdit extends the standard Markdown syntax by adding extra **Markdown extensions**, providing you with some nice features.
-
-> **ProTip:** You can disable any **Markdown extension** in the **File properties** dialog.
-
-
-## SmartyPants
-
-SmartyPants converts ASCII punctuation characters into "smart" typographic punctuation HTML entities. For example:
-
-|                |ASCII                          |HTML                         |
-|----------------|-------------------------------|-----------------------------|
-|Single backticks|`'Isn't this fun?'`            |'Isn't this fun?'            |
-|Quotes          |`"Isn't this fun?"`            |"Isn't this fun?"            |
-|Dashes          |`-- is en-dash, --- is em-dash`|-- is en-dash, --- is em-dash|
-
-.
-
-
-## UML diagrams
-
-You can render UML diagrams using [Mermaid](https://mermaidjs.github.io/). For example, this will produce a sequence diagram:
-
-```mermaid
-sequenceDiagram
-Alice ->> Bob: Hello Bob, how are you?
-Bob-->>John: How about you John?
-Bob--x Alice: I am good thanks!
-Bob-x John: I am good thanks!
-Note right of John: Bob thinks a long<br/>long time, so long<br/>that the text does<br/>not fit on a row.
-
-Bob-->Alice: Checking with John...
-Alice->John: Yes... John, how are you?
-```
-
-And this will produce a flow chart:
-
-```mermaid
-graph LR
-A[Square Rect] -- Link text --> B((Circle))
-A --> C(Round Rect)
-B --> D{Rhombus}
-C --> D
-```
+### Youtube to Sheet Music:
+- _Upload_:
+	- User supplies the website with a link to a song on Youtube.
+- _Analyse_:
+	- User selects whether they want chords, melody, etc.
+	- Using some sort of already made pitch detection package or software the website transcribes the song as playable sheet music (need to see if something like this exists that we could use).
+- _Share_:
+ 	- Share transcribed songs with other users.
+- Pros:
+	- Very practical.
+ 	- Simple front end.
+- Cons:
+	- Don't know if there is any sort of packages that we could use.
+	- How much work are we doing and how much are we outsourcing.
+	- Copyright issues?
+    
+### Probability Visualiser
+- _Upload_:
+	- Your own dataset.
+- _Analyse_:
+	- Normal distributions, binomial theorem.
+- _Share_:
+	- Share your analysis and datasets with other users.
+- Pros:
+	- Very data science.
+- Cons:
+	- Probably hard.
+ 	- Kind of boring. - Aaron
