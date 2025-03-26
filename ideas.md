@@ -41,7 +41,7 @@ Please think carefully about the design of the application. It should be:
 	- Initial list of club members and their details.
 	- Ability to add new members.
 	- Financial data.
-	- Slightly worried about the "private" part. 
+	- Slightly worried about the "private" part. - Aaron
 - _Analyse_:
 	- Membership over time.
 	- Finances. 
@@ -54,27 +54,27 @@ Please think carefully about the design of the application. It should be:
 
 ### Shortcut Racer
 - _Upload_:
-	- Users can upload their own code snippets (and modified snippets) to try.
+	- Users complete the shortcut excersises and data is gathered on that users performance.
 - _Analyse_:
 	- Speed, % of people who can solve it, (% who used command).
 - _Share_:
-	- `pass`
+	- Share perfomance data with other users.
 - Pros:
-	- Computer science
+	- Computer science (we're all familiar with it).
 - Cons:
-	- Analysis is a bit drawn out
+	- Analysis is a bit drawn out.
 
-### Music ~
+### Music Analyser
 - _Upload_:
-	- No idea ( maybe a specific chord or progression).
+	- Specific chord, progression, melody, etc.
 - _Analyse_:
 	- Music theory analysis of whatever info -- what chord it makes, parts of it, modes.
 - _Share_:
-	- `pass`
+	- Can share musical elements with other users.
 - Pros:
-	- `pass`
+	- Shouldn't be to hard if we can do the music theory.
 - Cons:
-	- `pass`
+	- Music theory.
 
 ### Youtube to Sheet Music:
 - _Upload_:
@@ -88,7 +88,7 @@ Please think carefully about the design of the application. It should be:
 	- Very practical.
  	- Simple front end.
 - Cons:
-	- Don't know if there is any sort of packages that we could use.
+	- Don't yet know if there is any sort of packages that we could use.
 	- How much work are we doing and how much are we outsourcing.
 	- Copyright issues?
     
