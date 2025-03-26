@@ -1,4 +1,4 @@
-# CITS3403
+# Overview
 For this project you are required to build a data analytics application, which allows users to upload private data, view automated analysis of their data and then selectively share the results with other users. You may interpret the concept of "data" and "analysis"  _very_ _flexibly_. For example, the application could be:
 
 -   An exercise tracking application, where users track their exercise habits, can view stats about their habits, and share information about their achievements with their friends on the system.
@@ -14,8 +14,6 @@ Please think carefully about the design of the application. It should be:
 -   _Engaging_, so that it looks good and focuses the user on important elements of the application.
 -   _Effective_, so it produces value for the user, by providing information, entertainment or community.
 -   _Intuitive_, so that it is easy for a user to use.
-
-----
 
 # Requirements
 - _Upload_ - "upload private data"
