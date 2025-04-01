@@ -21,7 +21,7 @@ Please think carefully about the design of the application. It should be:
 - _Share_ - "selectively share the results with other users"
 
 # Ideas
-### Dungeons and Dragons Character Sheet
+### ~~Dungeons and Dragons Character Sheet~~
 - _Upload_:
 	- User inputs their character details the first time they use the site as part of the character creation process.
 	- User is able to download their character as a file (`.JSON`?) and re-upload it next time they use the site.
@@ -52,7 +52,7 @@ Please think carefully about the design of the application. It should be:
 - Cons:
 	- Ignorance of club operations.
 
-### Shortcut Racer
+### ~~Shortcut Racer~~
 - _Upload_:
 	- Users complete the shortcut excersises and data is gathered on that users performance.
 - _Analyse_:
@@ -64,7 +64,7 @@ Please think carefully about the design of the application. It should be:
 - Cons:
 	- Analysis is a bit drawn out.
 
-### Music Analyser
+### ~~Music Analyser~~
 - _Upload_:
 	- Specific chord, progression, melody, etc.
 - _Analyse_:
@@ -76,7 +76,7 @@ Please think carefully about the design of the application. It should be:
 - Cons:
 	- Music theory.
 
-### Youtube to Sheet Music:
+### ~~Youtube to Sheet Music~~
 - _Upload_:
 	- User supplies the website with a link to a song on Youtube.
 - _Analyse_:
