@@ -104,3 +104,15 @@ Please think carefully about the design of the application. It should be:
 - Cons:
 	- Probably hard.
  	- Kind of boring. - Aaron
+ 
+### Fitness Tracker
+- _Upload_:
+	- Foot information
+- _Analyse_:
+	- Nutritional info
+ - _Share_:
+   	- your foods
+- Pros:
+	- Existing framework & fits project spec
+ - Cons:
+	- Not novel
