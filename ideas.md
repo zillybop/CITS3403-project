@@ -120,3 +120,13 @@ Please think carefully about the design of the application. It should be:
 Club: IIIIIIIIIIIII
 Prob: IIIIII
 Fit: IIIII
+
+
+# New Ideas
+
+### Image Analysis Toolkit - IIIIIIIII
+### New Word Logger - IIII
+### Efficient Attendance Marker - IIII
+### Club Manager - I
+
+# Final Descision - Image analysis toolit.
