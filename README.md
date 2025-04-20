@@ -23,5 +23,14 @@ a description of the purpose of the application, explaining its design and use.
 |23476285| Ryan Allagapen | teylan3007 |
 
 # Instructions for Launch
+Install requirements from requirements.txt
+```bash
+pip install -r requirements.txt
+```
+Run the application
+```bash
+flask run
+```
 
 # Instructions for tests
+
