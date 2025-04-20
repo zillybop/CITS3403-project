@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Upload{% endblock %}
+
+{% block content %}
+    <h2 class="text-center">Upload an Image</h2>
+    <form action="#" method="post" enctype="multipart/form-data" class="mt-4">
+        <div class="mb-3">
+            <label for="imageUpload" class="form-label">Find some images to upload:</label>
+            <input type="file" class="form-control" id="imageUpload" name="imageUpload" accept="image/*" multiple>
+        </div>
+        <div id="preview"></div>
+        <ul id="fileList"></ul>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+    <script>
+    document.getElementById("imageUpload").addEventListener("change", function(event) {
+        const preview = document.getElementById("preview");
+        const fileList = document.getElementById("fileList");
+        //preview.innerHTML = "";
+        //fileList.innerHTML = "";
+        
+        Array.from(event.target.files).forEach(file => {
+            // Display image preview
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.width = 100;
+            img.style.margin = "5px";
+            preview.appendChild(img);
+        
+            // Display file name
+            const listItem = document.createElement("li");
+            listItem.textContent = file.name;
+            fileList.appendChild(listItem);
+            });
+        });
+        </script>
+{% endblock %}
