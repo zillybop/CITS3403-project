@@ -26,6 +26,11 @@ Install requirements from requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
+Active the virtual environment
+```bash
+source application-env/bin/activate
+```
+
 Run the application
 ```bash
 flask run
