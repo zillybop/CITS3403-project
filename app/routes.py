@@ -1,6 +1,5 @@
-from flask import Flask, render_template
-
-app = Flask(__name__)
+from app import app
+from flask import render_template
 
 @app.route("/")
 def index():
@@ -22,6 +21,3 @@ def about():
 def share():
     return render_template("share.html")
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
