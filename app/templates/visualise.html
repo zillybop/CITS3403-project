@@ -1,8 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}Share{% endblock %}
+{% block title %}Visualise{% endblock %}
 
 {% block content %}
-  <h1 class="text-center">Share Data</h1>
-  <p class="text-muted text-center">Here is where you will be able to share your data.</p>
+  <h1 class="text-center">Visualise Data</h1>
+  <p class="text-muted text-center">Upload an image and adjust the threshold to see binary image transformation in action.</p>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h3>Original Image</h3>
+      <img id="original-image" src="{{ url_for('static', filename='images/image.jpg') }}" class="img-fluid" alt="Original image">
+    </div>
+    <div class="col-md-6">
+      <h3>Thresholding Toolkit</h3>
+      <form id="threshold-form" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="imageUpload" class="form-label">Upload Image</label>
+          <input class="form-control" type="file" id="imageUpload" name="image">
+        </div>
+        <div class="mb-3">
+          <label for="thresholdRange" class="form-label">Threshold</label>
+          <input type="range" class="form-range" min="0" max="255" value="128" id="thresholdRange" name="threshold">
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Threshold</button>
+      </form>
+      <h4 class="mt-4">Result</h4>
+      <img id="processed-image" src="../static/images/black-and-white-image.jpg.png"> <!--"{{ url_for('static', filename='images/threshold-result.jpg') }}" class="img-fluid" alt="Processed image"> -->
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <h3>What's Happening?</h3>
+    <p>
+      Thresholding is a fundamental image processing technique in computer vision. It converts a grayscale image into a binary image based on a threshold value.
+      Pixels above the threshold become white (1), and those below become black (0). This is useful for separating objects from the background, especially in segmentation tasks.
+    </p>
+    <p>
+      Try changing the threshold slider and uploading different images to see how the algorithm behaves. More tools like edge detection and blurring will be added soon to help understand how computers "see" images.
+    </p>
+  </div>
 {% endblock %}
