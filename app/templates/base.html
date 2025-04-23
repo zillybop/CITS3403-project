@@ -10,9 +10,17 @@
 </head>
 <body>
   <div class="container mt-4">
-    <div class="text-center mb-5">
+    <div class="position-relative text-center mb-5">
       <h1>{% block page_header %}Default Page{% endblock %}</h1>
       <p class="text-muted">{% block page_subheader %}Default description here.{% endblock %}</p>
+      <div class="position-absolute top-0 end-0 pe-3 pt-3">
+        {% if g.user %}
+          <span class="me-3">Hello, {{ g.user.username }}!</span>
+          <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn">Log out</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-primary btn">Log in</a>
+        {% endif %}
+      </div>
     </div>
     {% block content %}{% endblock %}
   </div>
