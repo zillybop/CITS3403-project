@@ -3,8 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 
-# SQLite database (if you're not required to commit it)
-app/app.db
+# SQLite database (if you're not required to commit it) app/app.db
 
 # Environment files
 application-env/
