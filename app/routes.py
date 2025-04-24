@@ -1,19 +1,41 @@
 from app import app
-from flask import render_template, flash, redirect, url_for
-from app.forms import LoginForm, RegisterForm
+from flask import render_template, flash, redirect, url_for, send_from_directory
+from app.forms import LoginForm, RegisterForm, UploadForm
+from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import User
+from app.models import User, Image
 from app import db
+import os
 
 @app.route("/")
 @app.route("/introductory")
 def introductory():
     return render_template("introductory.html")
 
-@app.route("/upload")
+@app.route("/upload", methods=['GET', 'POST'])
 @login_required
 def upload():
-    return render_template("upload.html")
+    form = UploadForm()
+    images = Image.query.filter_by(user_id=current_user.id).all()
+    print(images)
+    if form.validate_on_submit():
+        file = form.image.data
+        image = Image(filename='', title=form.title.data, user_id=current_user.id)
+
+        db.session.add(image)
+        db.session.flush()
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{image.id}.{ext}"
+        filepath = os.path.join('app/uploads', filename)
+        file.save(filepath)
+
+        image.filename = filename
+        db.session.commit()
+        print(image)
+        flash('Image uploaded successfully!', 'success')
+        return redirect(url_for('upload'))
+
+    return render_template('upload.html', form=form, images=images)
 
 @app.route("/visualise")
 def about():
@@ -58,5 +80,10 @@ def register():
         print(f"[DEBUG] Created user: id={user.id}, username={user.username}")
         login_user(user)
         flash('Account created successfully. You are now logged in.', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('introductory'))
     return render_template("register.html", form=form)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    upload_folder = os.path.join(app.root_path, 'uploads')
+    return send_from_directory(upload_folder, filename)
