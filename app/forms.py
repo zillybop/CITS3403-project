@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, BooleanField, SubmitField, PasswordField
+from wtforms import StringField, IntegerField, BooleanField, SubmitField, PasswordField, FileField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 from app.models import User
+from flask_wtf.file import FileAllowed
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -20,3 +21,8 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Username already exists. Please choose another.')
+
+class UploadForm(FlaskForm):
+    title = StringField('Image Title', validators=[DataRequired()])
+    image = FileField('Image File', validators=[DataRequired(), FileAllowed(['jpg', 'jpeg', 'png'])])
+    submit = SubmitField('Upload')
