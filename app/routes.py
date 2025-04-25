@@ -38,8 +38,10 @@ def upload():
     return render_template('upload.html', form=form, images=images)
 
 @app.route("/visualise")
+@login_required
 def about():
-    return render_template("visualise.html")
+    images = Image.query.filter_by(user_id=current_user.id).all()
+    return render_template("visualise.html", images=images)
 
 @app.route("/share")
 def share():
