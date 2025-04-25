@@ -1,42 +1,136 @@
 {% extends "base.html" %}
 
 {% block title %}Visualise{% endblock %}
-{% block page_header %}Visualise Data{% endblock %}
-{% block page_subheader %}Upload an image and adjust the threshold to see binary image transformation in action.{% endblock %}
-
+{% block page_header %}Visualise Your Image{% endblock %}
+{% block page_subheader %}Select one of your uploaded images to analyse its visual and file features.{% endblock %}
 
 {% block content %}
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <h3>Original Image</h3>
-      <img id="original-image" src="{{ url_for('static', filename='images/image.jpg') }}" class="img-fluid" alt="Original image">
+<style>
+  .image-placeholder {
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border: 2px dashed #ced4da;
+    border-radius: 5px;
+  }
+  .image-title-center {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .card-image-preview {
+    min-height: 400px;
+  }
+</style>
+<!-- Modal for selecting image -->
+<div class="modal fade" id="imageSelectModal" tabindex="-1" aria-labelledby="imageSelectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageSelectModalLabel">Select an Image</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          {% for image in images %}
+          <div class="col-md-3 mb-3">
+            <div class="card clickable"
+                 data-filename="{{ image.filename }}"
+                 data-title="{{ image.title }}"
+                 data-bs-dismiss="modal"
+                 onclick="selectImageFromCard(this)">
+              <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
+                   alt="{{ image.title }}">
+              <div class="card-body p-2 text-center">
+                <p class="card-text small">{{ image.title }}</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-    <div class="col-md-6">
-      <h3>Thresholding Toolkit</h3>
-      <form id="threshold-form" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="imageUpload" class="form-label">Upload Image</label>
-          <input class="form-control" type="file" id="imageUpload" name="image">
+  </div>
+</div>
+
+<!-- Dashboard layout for visualisation -->
+<div class="row mt-4">
+  <!-- Main Image Preview Card -->
+  
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100 card-image-preview">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 id="image-title" class="mb-0">Image Title</h5>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#imageSelectModal">
+          <img id="img_icon" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; margin-top: -3px;">
+        </a>
+      </div>
+      <div class="card-body text-center">
+        <div id="image-placeholder" class="image-placeholder">
+          <p class="text-muted">No image selected</p>
         </div>
-        <div class="mb-3">
-          <label for="thresholdRange" class="form-label">Threshold</label>
-          <input type="range" class="form-range" min="0" max="255" value="128" id="thresholdRange" name="threshold">
-        </div>
-        <button type="submit" class="btn btn-primary">Apply Threshold</button>
-      </form>
-      <h4 class="mt-4">Result</h4>
-      <img id="processed-image" src="../static/images/black-and-white-image.jpg.png"> <!--"{{ url_for('static', filename='images/threshold-result.jpg') }}" class="img-fluid" alt="Processed image"> -->
+        <img id="selected-image" src="" class="img-fluid d-none" alt="Selected image">
+      </div>
     </div>
   </div>
 
-  <div class="mt-5">
-    <h3>What's Happening?</h3>
-    <p>
-      Thresholding is a fundamental image processing technique in computer vision. It converts a grayscale image into a binary image based on a threshold value.
-      Pixels above the threshold become white (1), and those below become black (0). This is useful for separating objects from the background, especially in segmentation tasks.
-    </p>
-    <p>
-      Try changing the threshold slider and uploading different images to see how the algorithm behaves. More tools like edge detection and blurring will be added soon to help understand how computers "see" images.
-    </p>
+  
+  <!-- Histogram Card -->
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header">Histogram</div>
+      <div class="card-body text-center">
+        <p>Histogram plot will appear here.</p>
+      </div>
+    </div>
   </div>
+  
+  <!-- Metadata Card -->
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header">Image Metadata</div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li><strong>Resolution:</strong> <span id="resolution">-</span></li>
+          <li><strong>File Type:</strong> <span id="filetype">-</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Color Channel Previews -->
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header">Color Channel Breakdown</div>
+      <div class="card-body text-center">
+        <p>R / G / B channel views will appear here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function selectImageFromCard(card) {
+    const src = card.querySelector('img').src;
+    const title = card.dataset.title;
+    const filename = card.dataset.filename;
+
+    const img = document.getElementById('selected-image');
+    const label = document.getElementById('image-title');
+    const placeholder = document.getElementById('image-placeholder');
+
+    img.src = src;
+    img.classList.remove('d-none');
+    placeholder.classList.add('d-none');
+    label.textContent = title;
+
+    const resolution = document.getElementById('resolution');
+    resolution.innerHTML = img.naturalWidth + 'x' + img.naturalHeight + ' pixels';
+
+    const file_type = document.getElementById('filetype');
+    file_type.innerHTML = filename.split('.').pop().toUpperCase();
+
+    document.getElementById('img_icon').src = "{{ url_for('static', filename='images/arrow-path.svg') }}";
+  }
+</script>
 {% endblock %}
