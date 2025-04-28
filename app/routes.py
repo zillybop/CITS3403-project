@@ -24,7 +24,8 @@ def upload():
 
         db.session.add(image)
         db.session.flush()
-        ext = file.filename.rsplit('.', 1)[1].lower()
+        sanitized_filename = secure_filename(file.filename)
+        ext = sanitized_filename.rsplit('.', 1)[1].lower()
         filename = f"{image.id}.{ext}"
         filepath = os.path.join('app/uploads', filename)
         file.save(filepath)
