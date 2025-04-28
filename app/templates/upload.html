@@ -20,7 +20,7 @@
         {% for image in images %}
             <div class="col-md-3 mb-4">
                 <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}"> <!--TODO this preview hasnt been implemented-->
-                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}"class="card-img-top" alt="{{ image.title }}">
+                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top" alt="{{ image.title }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ image.title }}</h5>
                     </div>
