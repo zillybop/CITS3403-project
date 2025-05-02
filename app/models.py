@@ -9,6 +9,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     images = db.relationship('Image', backref='user', lazy=True)
+    posts = db.relationship('Post', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -28,3 +29,23 @@ class Image(db.Model):
 
     def __repr__(self):
         return f"<Image id={self.id} filename={self.filename} title={self.title} user_id={self.user_id}>"
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    image = db.relationship('Image')
+    # Possibly add comments and likes later.
+
+    def __repr__(self):
+        return f"<Post id={self.id} title={self.title} user_id={self.user_id}>"
+    
+class UserFriends(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"<UserFriends id={self.id} user_id={self.user_id} friend_id={self.friend_id}>"
+    
