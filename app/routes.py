@@ -16,7 +16,8 @@ def introductory():
 @login_required
 def upload():
     form = UploadForm()
-    images = Image.query.filter_by(user_id=current_user.id).all()
+     # Fetch images in reverse chronological order (newest first)
+    images = Image.query.filter_by(user_id=current_user.id).order_by(Image.id.desc()).all()
     print(images)
     if form.validate_on_submit():
         file = form.image.data
