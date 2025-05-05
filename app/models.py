@@ -11,11 +11,29 @@ class User(UserMixin, db.Model):
     images = db.relationship('Image', backref='user', lazy=True)
     posts = db.relationship('Post', backref='user', lazy=True)
 
+    followers = db.relationship(
+        'FollowRequest',
+        foreign_keys='FollowRequest.followed_id',
+        backref='followed',
+        lazy='dynamic'
+    )
+
+    following = db.relationship(
+        'FollowRequest',
+        foreign_keys='FollowRequest.follower_id',
+        backref='follower',
+        lazy='dynamic'
+    )
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def is_following(self, user):
+        return self.following.filter_by(followed_id=user.id, accepted=True).first() is not None
+    
     
     def __repr__(self):
         return f"<User id={self.id} username={self.username}>"
@@ -41,11 +59,12 @@ class Post(db.Model):
     def __repr__(self):
         return f"<Post id={self.id} title={self.title} user_id={self.user_id}>"
     
-class UserFriends(db.Model):
+class FollowRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    accepted = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return f"<UserFriends id={self.id} user_id={self.user_id} friend_id={self.friend_id}>"
+        return f"<FollowRequest id={self.id} follower_id={self.follower_id} followed_id={self.followed_id} accepted={self.accepted}>"
     
