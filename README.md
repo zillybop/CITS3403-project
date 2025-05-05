@@ -64,4 +64,12 @@ Run the application
 flask run
 ```
 
-## Instructions for tests
+# Instructions for tests
+Some dummy accounts have been created for testing purposes. The credentials are as follows:
+|username|password|
+|--------|-------|
+|admin1  |password1|
+|admin2  |password2|
+|admin3  |password3|
+|admin4  |password4|
+|admin5  |password5|
