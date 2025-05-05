@@ -68,7 +68,7 @@ flask run
 Some dummy accounts have been created for testing purposes. The credentials are as follows:
 |username|password|
 |--------|-------|
-|admin1  |password1|
+|admin  |password|
 |admin2  |password2|
 |admin3  |password3|
 |admin4  |password4|
