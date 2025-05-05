@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, flash, redirect, url_for, send_from_directory
-from app.forms import LoginForm, RegisterForm, UploadForm
+from app.forms import LoginForm, RegisterForm, UploadForm, PostForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User, Image, FollowRequest, Post
@@ -40,7 +40,7 @@ def upload():
 
 @app.route("/visualise")
 @login_required
-def about():
+def visualise():
     images = Image.query.filter_by(user_id=current_user.id).all()
     return render_template("visualise.html", images=images)
 
@@ -98,7 +98,15 @@ def uploaded_file(filename):
 @login_required
 def list_users():
     users = User.query.filter(User.id != current_user.id).all() # TODO: fuzzy search through all accounts with client-side rendering
-    return render_template('users.html', users=users)
+
+    follow_requests = FollowRequest.query.filter_by(follower_id=current_user.id).all()
+    status_map = {fr.followed_id: (1 if fr.accepted else 0) for fr in follow_requests}
+
+    user_statuses = []
+    for user in users:
+        status = status_map.get(user.id, -1)
+        user_statuses.append((user, status))
+    return render_template('users.html', user_statuses=user_statuses)
 
 @app.route('/follow/<int:user_id>', methods=['POST'])
 @login_required
@@ -124,3 +132,25 @@ def accept_follow(req_id):
         fr.accepted = True
         db.session.commit()
     return redirect(url_for('follow_requests'))
+
+@app.route('/post/create', methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = PostForm()
+    form.image_id.choices = [
+            (img.id, img.title) for img in current_user.images
+        ]   
+    if form.validate_on_submit():
+        post = Post(
+            title=form.title.data,
+            image_id=form.image_id.data,
+            user_id=current_user.id
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash('Post created successfully!', 'success')
+        return redirect(url_for('share_page'))
+
+
+
+    return render_template("create_post.html", form=form)
