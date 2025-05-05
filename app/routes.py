@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, send_from_directory
 from app.forms import LoginForm, RegisterForm, UploadForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import User, Image
+from app.models import User, Image, FollowRequest, Post
 from app import db
 import os
 
@@ -42,9 +42,12 @@ def upload():
 def about():
     return render_template("visualise.html")
 
-@app.route("/share")
-def share():
-    return render_template("share.html")
+@app.route('/share')
+@login_required
+def share_page():
+    followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
+    posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
+    return render_template('share.html', posts=posts)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -88,3 +91,34 @@ def register():
 def uploaded_file(filename):
     upload_folder = os.path.join(app.root_path, 'uploads')
     return send_from_directory(upload_folder, filename)
+
+@app.route('/users')
+@login_required
+def list_users():
+    users = User.query.filter(User.id != current_user.id).all() # TODO: fuzzy search through all accounts with client-side rendering
+    return render_template('users.html', users=users)
+
+@app.route('/follow/<int:user_id>', methods=['POST'])
+@login_required
+def send_follow_request(user_id):
+    existing = FollowRequest.query.filter_by(follower_id=current_user.id, followed_id=user_id).first()
+    if not existing:
+        fr = FollowRequest(follower_id=current_user.id, followed_id=user_id)
+        db.session.add(fr)
+        db.session.commit()
+    return redirect(url_for('list_users'))
+
+@app.route('/follow_requests')
+@login_required
+def follow_requests():
+    requests = current_user.followers.filter_by(accepted=False).all()
+    return render_template('follow_requests.html', requests=requests)
+
+@app.route('/accept_follow/<int:req_id>', methods=['POST'])
+@login_required
+def accept_follow(req_id):
+    fr = FollowRequest.query.get_or_404(req_id)
+    if fr.followed_id == current_user.id:
+        fr.accepted = True
+        db.session.commit()
+    return redirect(url_for('follow_requests'))
