@@ -53,7 +53,9 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    image = db.relationship('Image')
+    
+    image_id = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=True)
+    image = db.relationship('Image', backref='posts')
     # Possibly add comments and likes later.
 
     def __repr__(self):
