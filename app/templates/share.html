@@ -6,32 +6,18 @@
 
 {% block content %}
 
-{% if filename %}
-<div class="text-center">
-  <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Processed Image" class="img-fluid rounded border" style="max-height: 400px;">
-  
-  <div class="mt-3">
-    <a href="{{ url_for('static', filename='uploads/' + filename) }}" class="btn btn-success me-2" download>
-      ⬇️ Download Image
-    </a>
-    <a href="/upload" class="btn btn-primary">🔁 Upload Another</a>
+<div class="card mx-auto mb-4" style="max-width: 600px;">
+  <img src="{{ url_for('static', filename='images/image.jpg') }}" class="card-img-top" alt="Post Image">
+  <div class="card-body">
+    <h5 class="card-title">Mock Post Title</h5>
+    <p class="card-text text-muted">Posted by <strong>user123</strong> • 2 hours ago</p>
+    <p class="card-text">This is a preview of what a user's shared post might look like, including a caption or description.</p>
+    <a href="#" class="btn btn-outline-primary btn-sm">💬 Comment</a>
+    <a href="#" class="btn btn-outline-success btn-sm">⬇️ Download</a>
   </div>
 </div>
-
-<hr class="my-5">
-
-<div class="mt-4">
-  <h5>💬 Leave a Comment</h5>
-  <form>
-    <div class="mb-3">
-      <textarea class="form-control" rows="3" placeholder="What do you think about this transformation?"></textarea>
-    </div>
-    <button type="submit" class="btn btn-outline-secondary">Submit Comment</button>
-  </form>
+<div class="mt-4 mb-4 text-center"></div>
+  <a href="{{ url_for('list_users') }}" class="btn btn-outline-primary mb-5">👥 Find Users to Follow</a>
 </div>
-{% else %}
-<div class="alert alert-warning text-center">
-  No image to share. Please <a href="/visualise" class="alert-link">generate one</a> first.
-</div>
-{% endif %}
+
 {% endblock %}
