@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Vision Toolkit{% endblock %}</title>
@@ -8,13 +9,38 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+  {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
   <div class="container mt-4">
+    <div class="position-relative text-center mb-5">
+      <h1>{% block page_header %}Default Page{% endblock %}</h1>
+      <p class="text-muted">{% block page_subheader %}Default description here.{% endblock %}</p>
+      <div class="position-absolute top-0 end-0 pe-3 pt-3">
+        {% if current_user.is_authenticated %}
+          <span class="me-3">Hello, {{ current_user.username }}!</span> <!---->
+          <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn">Log out</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-primary btn">Log in</a>
+        {% endif %}
+      </div>
+    </div>
     {% block content %}{% endblock %}
   </div>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  
+
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Vision Toolkit</a>
@@ -34,8 +60,9 @@
       </ul>
     </div>
   </nav>
-  
+
 
 
 </body>
+
 </html>

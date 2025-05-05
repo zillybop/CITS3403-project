@@ -1,40 +1,65 @@
 {% extends "base.html" %}
 
 {% block title %}Upload{% endblock %}
+{% block page_header %}Upload an Image{% endblock %}
+{% block page_subheader %}Here is where you will be able to upload your data.{% endblock %}
 
 {% block content %}
-  <h1 class="text-center">Upload an Image</h1>
-  <p class="text-muted text-center">Here is where you will be able to upload your data.</p>
-    <form action="#" method="post" enctype="multipart/form-data" class="mt-4">
-        <div class="mb-3">
-            <label for="imageUpload" class="form-label">Find some images to upload:</label>
-            <input type="file" class="form-control" id="imageUpload" name="imageUpload" accept="image/*" multiple>
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="card clickable" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <img src="{{ url_for('static', filename='images/arrow-down-tray.svg') }}"
+                     class="card-img-top"
+                     alt="Upload"
+                     style="opacity: 0.4; max-width: 100%; max-height: 200px; object-fit: contain;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Upload Image</h5>
+                </div>
+            </div>
         </div>
-        <div id="preview"></div>
-        <ul id="fileList"></ul>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
+        {% for image in images %}
+            <div class="col-md-3 mb-4">
+                <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}"> <!--TODO this preview hasnt been implemented-->
+                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top" alt="{{ image.title }}">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ image.title }}</h5>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">No images uploaded yet.</p>
+        {% endfor %}
+    </div>
 
-    <script>
-    document.getElementById("imageUpload").addEventListener("change", function(event) {
-        const preview = document.getElementById("preview");
-        const fileList = document.getElementById("fileList");
-        //preview.innerHTML = "";
-        //fileList.innerHTML = "";
-        
-        Array.from(event.target.files).forEach(file => {
-            // Display image preview
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(file);
-            img.width = 100;
-            img.style.margin = "5px";
-            preview.appendChild(img);
-        
-            // Display file name
-            const listItem = document.createElement("li");
-            listItem.textContent = file.name;
-            fileList.appendChild(listItem);
-            });
-        });
-        </script>
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel">Upload a New Image</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control", placeholder="Enter image title") }}
+                {% if form.title.errors %}
+                    <div class="text-danger">{{ form.title.errors[0] }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.image.label(class="form-label") }}
+                {{ form.image(class="form-control") }}
+                {% if form.image.errors %}
+                    <div class="text-danger">{{ form.image.errors[0] }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
