@@ -18,7 +18,7 @@ def upload():
     form = UploadForm()
      # Fetch images in reverse chronological order (newest first)
     images = Image.query.filter_by(user_id=current_user.id).order_by(Image.id.desc()).all()
-    print(images)
+    app.logger.debug(images)
     if form.validate_on_submit():
         file = form.image.data
         image = Image(filename='', title=form.title.data, user_id=current_user.id)
@@ -33,7 +33,7 @@ def upload():
 
         image.filename = filename
         db.session.commit()
-        print(image)
+        app.logger.debug(image)
         flash('Image uploaded successfully!', 'success')
         return redirect(url_for('upload'))
 
@@ -53,9 +53,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
-            print(f"[DEBUG] Found user: id={user.id}, username={user.username}")
+            app.logger.debug(f"[DEBUG] Found user: id={user.id}, username={user.username}")
         else:
-            print("[DEBUG] No user found with that username.")
+            app.logger.debug("[DEBUG] No user found with that username.")
         if user and user.check_password(form.password.data):
             login_user(user)
             flash('Logged in successfully.', 'success')
@@ -79,7 +79,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        print(f"[DEBUG] Created user: id={user.id}, username={user.username}")
+        app.logger.debug(f"[DEBUG] Created user: id={user.id}, username={user.username}")
         login_user(user)
         flash('Account created successfully. You are now logged in.', 'success')
         return redirect(url_for('introductory'))
