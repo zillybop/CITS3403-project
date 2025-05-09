@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, BooleanField, SubmitField, PasswordField, FileField
+from wtforms import StringField, IntegerField, TextAreaField, SelectMultipleField, BooleanField, SubmitField, PasswordField, FileField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 from app.models import User
 from flask_wtf.file import FileAllowed
@@ -26,3 +26,9 @@ class UploadForm(FlaskForm):
     title = StringField('Image Title', validators=[DataRequired()])
     image = FileField('Image File', validators=[DataRequired(), FileAllowed(['jpg', 'jpeg', 'png'])])
     submit = SubmitField('Upload')
+
+class NewPostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description')
+    images = SelectMultipleField('Choose Images', coerce=int)
+    submit = SubmitField('Create Post')

@@ -1,9 +1,9 @@
 from app import app
 from flask import render_template, flash, redirect, url_for, send_from_directory
-from app.forms import LoginForm, RegisterForm, UploadForm
+from app.forms import LoginForm, RegisterForm, UploadForm, NewPostForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import User, Image
+from app.models import User, Image, Post
 from app import db
 import os
 
@@ -40,7 +40,7 @@ def upload():
     return render_template('upload.html', form=form, images=images)
 
 @app.route("/visualise")
-def about():
+def visualise():
     return render_template("visualise.html")
 
 @app.route("/share")
@@ -89,3 +89,27 @@ def register():
 def uploaded_file(filename):
     upload_folder = os.path.join(app.root_path, 'uploads')
     return send_from_directory(upload_folder, filename)
+
+@app.route('/new-post', methods=['GET', 'POST'])
+@login_required
+def new_post():
+    form = NewPostForm()
+    # populate choices with (id, filename or thumbnail) for this user
+    user_images = Image.query.filter_by(user_id=current_user.id).all()
+    form.images.choices = [(img.id, img.filename) for img in user_images]
+
+    if form.validate_on_submit():
+        p = Post(title=form.title.data,
+                 description=form.description.data,
+                 user_id=current_user.id)
+        # attach images
+        for img_id in form.images.data:
+            img = Image.query.get(img_id)
+            if img and img.user_id == current_user.id:
+                p.images.append(img)
+        db.session.add(p)
+        db.session.commit()
+        flash('Post created.', 'success')
+        return redirect(url_for('share'))  # or 'feed' if you have it
+
+    return render_template('new_post.html', form=form, images=user_images)

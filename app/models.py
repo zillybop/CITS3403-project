@@ -1,9 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from app import db
 
-db = SQLAlchemy()
-
+post_images = db.Table('post_images',
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
+    db.Column('image_id', db.Integer, db.ForeignKey('image.id'), primary_key=True)
+)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -28,3 +32,14 @@ class Image(db.Model):
 
     def __repr__(self):
         return f"<Image id={self.id} filename={self.filename} title={self.title} user_id={self.user_id}>"
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(140), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    images = db.relationship('Image', secondary=post_images, backref='posts')
+
+    def __repr__(self):
+        return f'<Post {self.title!r}>'

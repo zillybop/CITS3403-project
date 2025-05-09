@@ -14,7 +14,13 @@
     <a href="{{ url_for('static', filename='uploads/' + filename) }}" class="btn btn-success me-2" download>
       ⬇️ Download Image
     </a>
-    <a href="/upload" class="btn btn-primary">🔁 Upload Another</a>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary me-2">
+      🔁 Upload Another
+    </a>
+    <!-- New Post button -->
+    <a href="{{ url_for('new_post') }}" class="btn btn-outline-primary">
+      ➕ New Post
+    </a>
   </div>
 </div>
 
@@ -31,7 +37,7 @@
 </div>
 {% else %}
 <div class="alert alert-warning text-center">
-  No image to share. Please <a href="/visualise" class="alert-link">generate one</a> first.
+  No image to share. Please <a href="{{ url_for('visualise') }}" class="alert-link">generate one</a> first.
 </div>
 {% endif %}
 {% endblock %}

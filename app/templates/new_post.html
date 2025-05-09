@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Create New Post</h1>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div>
+      {{ form.title.label }}<br>
+      {{ form.title(size=50) }}
+    </div>
+    <div>
+      {{ form.description.label }}<br>
+      {{ form.description(rows=4, cols=50) }}
+    </div>
+    <div>
+      {{ form.images.label }}<br>
+      {% for val, label in form.images.choices %}
+        <label style="display:inline-block; margin:5px;">
+          <input type="checkbox" name="{{ form.images.name }}" value="{{ val }}"
+            {% if val in form.images.data %}checked{% endif %}>
+          <img src="{{ url_for('static', filename='uploads/' ~ label) }}"
+               alt="" style="height:80px; display:block;">
+        </label>
+      {% endfor %}
+    </div>
+    <div>{{ form.submit() }}</div>
+  </form>
+{% endblock %}
