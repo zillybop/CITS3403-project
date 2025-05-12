@@ -24,12 +24,31 @@ class User(UserMixin, db.Model):
         backref='follower',
         lazy='dynamic'
     )
+    posts = db.relationship('Post', backref='user', lazy=True)
+
+    followers = db.relationship(
+        'FollowRequest',
+        foreign_keys='FollowRequest.followed_id',
+        backref='followed',
+        lazy='dynamic'
+    )
+
+    following = db.relationship(
+        'FollowRequest',
+        foreign_keys='FollowRequest.follower_id',
+        backref='follower',
+        lazy='dynamic'
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def is_following(self, user):
+        return self.following.filter_by(followed_id=user.id, accepted=True).first() is not None
+    
     
     def is_following(self, user):
         return self.following.filter_by(followed_id=user.id, accepted=True).first() is not None
