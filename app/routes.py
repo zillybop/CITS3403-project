@@ -7,6 +7,7 @@ from app.models import User, Image, FollowRequest, Post
 from app import db
 import os
 
+#--------------- NAVBAR ROUTES -------------------------
 @app.route("/")
 @app.route("/introductory")
 def introductory():
@@ -38,19 +39,106 @@ def upload():
 
     return render_template('upload.html', form=form, images=images)
 
-@app.route("/visualise")
+@app.route("/visualise") # This is currently "manipulate" in the nav-bar. eventually would like to put it into an analysis or more consolidated form
 @login_required
 def visualise():
     images = Image.query.filter_by(user_id=current_user.id).all()
     return render_template("visualise.html", images=images)
 
-@app.route('/share')
+@app.route('/social')
 @login_required
-def share_page():
-    followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
-    posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
-    return render_template('share.html', posts=posts)
+def social_home():
+    return redirect(url_for('social_feed'))
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    upload_folder = os.path.join(app.root_path, 'uploads')
+    return send_from_directory(upload_folder, filename)
+
+
+#--------------- SOCIAL ROUTES ------------------------
+@app.route('/social/feed')
+@login_required
+def social_feed():
+    followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
+    followed_ids.append(current_user.id)
+    posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
+    return render_template('social/feed.html', posts=posts)
+
+@app.route('/social/users')
+@login_required
+def list_users():
+    users = User.query.filter(User.id != current_user.id).all() # TODO: fuzzy search through all accounts with client-side rendering
+
+    follow_requests = FollowRequest.query.filter_by(follower_id=current_user.id).all()
+    status_map = {fr.followed_id: (1 if fr.accepted else 0) for fr in follow_requests}
+    followers = [
+        fr.follower for fr in FollowRequest.query.filter_by(followed_id=current_user.id, accepted=True).all()
+    ]
+
+    user_statuses = []
+    for user in users:
+        status = status_map.get(user.id, -1)
+        user_statuses.append((user, status))
+    return render_template('social/users.html', user_statuses=user_statuses, followers=followers)
+
+@app.route('/social/follow/<int:user_id>', methods=['POST'])
+@login_required
+def send_follow_request(user_id):
+    existing = FollowRequest.query.filter_by(follower_id=current_user.id, followed_id=user_id).first()
+    if not existing:
+        fr = FollowRequest(follower_id=current_user.id, followed_id=user_id)
+        db.session.add(fr)
+        db.session.commit()
+    return redirect(url_for('list_users'))
+
+@app.route('/social/remove_follower/<int:user_id>', methods=['POST'])
+@login_required
+def remove_follower(user_id):
+    fr = FollowRequest.query.filter_by(follower_id=user_id, followed_id=current_user.id, accepted=True).first()
+    if fr:
+        db.session.delete(fr)
+        db.session.commit()
+        flash("Follower removed.", "info")
+    return redirect(url_for('list_users'))
+
+@app.route('/social/inbox')
+@login_required
+def inbox():
+    follow_requests = current_user.followers.filter_by(accepted=False).all()
+    return render_template('social/inbox.html', requests=follow_requests)
+
+@app.route('/social/accept_follow/<int:req_id>', methods=['POST'])
+@login_required
+def accept_follow(req_id):
+    fr = FollowRequest.query.get_or_404(req_id)
+    if fr.followed_id == current_user.id:
+        fr.accepted = True
+        db.session.commit()
+    return redirect(url_for('inbox'))
+
+@app.route('/social/post/create', methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = PostForm()
+    images = Image.query.filter_by(user_id=current_user.id).all()
+    app.logger.debug(f"Form data: id=post.id, title={form.title.data}, subtitle={form.subtitle.data}, image_id={form.image_id.data}, user_id={current_user.id}")
+    if form.validate_on_submit():
+        print("this seems to have been validated\n yipee")
+        post = Post(
+            title=form.title.data,
+            subtitle=form.subtitle.data,
+            image_id=form.image_id.data,
+            user_id=current_user.id
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash('Post created successfully!', 'success')
+        return redirect(url_for('social_feed'))
+    return render_template("social/create_post.html", form=form, images=images)
+
+
+#------------ LOGIN ROUTES ------------------------
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -88,69 +176,3 @@ def register():
         flash('Account created successfully. You are now logged in.', 'success')
         return redirect(url_for('introductory'))
     return render_template("register.html", form=form)
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    upload_folder = os.path.join(app.root_path, 'uploads')
-    return send_from_directory(upload_folder, filename)
-
-@app.route('/users')
-@login_required
-def list_users():
-    users = User.query.filter(User.id != current_user.id).all() # TODO: fuzzy search through all accounts with client-side rendering
-
-    follow_requests = FollowRequest.query.filter_by(follower_id=current_user.id).all()
-    status_map = {fr.followed_id: (1 if fr.accepted else 0) for fr in follow_requests}
-
-    user_statuses = []
-    for user in users:
-        status = status_map.get(user.id, -1)
-        user_statuses.append((user, status))
-    return render_template('users.html', user_statuses=user_statuses)
-
-@app.route('/follow/<int:user_id>', methods=['POST'])
-@login_required
-def send_follow_request(user_id):
-    existing = FollowRequest.query.filter_by(follower_id=current_user.id, followed_id=user_id).first()
-    if not existing:
-        fr = FollowRequest(follower_id=current_user.id, followed_id=user_id)
-        db.session.add(fr)
-        db.session.commit()
-    return redirect(url_for('list_users'))
-
-@app.route('/follow_requests')
-@login_required
-def follow_requests():
-    requests = current_user.followers.filter_by(accepted=False).all()
-    return render_template('follow_requests.html', requests=requests)
-
-@app.route('/accept_follow/<int:req_id>', methods=['POST'])
-@login_required
-def accept_follow(req_id):
-    fr = FollowRequest.query.get_or_404(req_id)
-    if fr.followed_id == current_user.id:
-        fr.accepted = True
-        db.session.commit()
-    return redirect(url_for('follow_requests'))
-
-@app.route('/post/create', methods=['GET', 'POST'])
-@login_required
-def create_post():
-    form = PostForm()
-    form.image_id.choices = [
-            (img.id, img.title) for img in current_user.images
-        ]   
-    if form.validate_on_submit():
-        post = Post(
-            title=form.title.data,
-            image_id=form.image_id.data,
-            user_id=current_user.id
-        )
-        db.session.add(post)
-        db.session.commit()
-        flash('Post created successfully!', 'success')
-        return redirect(url_for('share_page'))
-
-
-
-    return render_template("create_post.html", form=form)
