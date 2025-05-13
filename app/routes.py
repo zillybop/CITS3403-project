@@ -1,7 +1,6 @@
 from app import app
 from flask import render_template, flash, redirect, url_for, send_from_directory
 from app.forms import LoginForm, RegisterForm, UploadForm, PostForm
-from app.forms import LoginForm, RegisterForm, UploadForm, PostForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User, Image, FollowRequest, Post
