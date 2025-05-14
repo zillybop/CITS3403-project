@@ -6,11 +6,12 @@ from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User, Image
 from app import db
 import os
+import time
 
 @app.route("/")
 @app.route("/introductory")
 def introductory():
-    return render_template("introductory.html")
+    return render_template("introductory.html", timestamp=int(time.time()))
 
 @app.route("/upload", methods=['GET', 'POST'])
 @login_required
