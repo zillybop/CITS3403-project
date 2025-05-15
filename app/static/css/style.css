@@ -9,3 +9,24 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transform: scale(1.03);
 }
+
+.image-placeholder {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border: 2px dashed #ced4da;
+  border-radius: 5px;
+}
+.image-title-center {
+  text-align: center;
+  margin-top: 10px;
+}
+.card-image-preview {
+  min-height: 400px;
+}
+
+#inbox-icon img:hover {
+  content: url("/static/images/envelope-open.svg");
+}

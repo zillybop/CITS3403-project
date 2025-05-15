@@ -1,0 +1,121 @@
+{% extends "social/base.html" %}
+{% block title %}Friend Feed - Vision Toolkit{% endblock %}
+{% block page_header %}Feed{% endblock %}
+{% block page_subheader %}See what your friends have been envisioning!{% endblock %}
+
+{% block social_content %}
+<form method="POST" action="" enctype="multipart/form-data"
+      onsubmit="console.log('image_id is:', document.getElementById('image_id').value)">
+    {{ form.hidden_tag() }}
+    <!-- Mock Post Preview -->
+    <div class="row mt-4" style="padding-bottom: 80px;">
+        <!-- Left Column: Image Preview and Metadata -->
+
+        <div class="col-lg-6 d-flex flex-column card mx-auto mb-4" style="max-width: 600px;">
+            <div class="card-body text-center p-0" style="min-height: 400px;">
+                <div class="card-body text-center">
+                    <div id="image-placeholder" class="image-placeholder">
+                        <p class="text-muted">No image selected</p>
+                    </div>
+                    <img id="selected-image" src="" class="img-fluid d-none" alt="Selected image">
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title" id="previewTitle">Your post title will appear here</h5>
+                <p class="card-text text-muted">Posted by <strong>{{ current_user.username }}</strong> • just now</p>
+                <p class="card-text" id="previewSubtitle">This is a preview of what your shared post might look like.
+                </p>
+                <a href="#" class="btn btn-outline-danger  btn-sm">🌄 Visualise</a>
+                <a href="#" class="btn btn-outline-primary btn-sm">💬 Comment</a>
+                <a href="#" class="btn btn-outline-success btn-sm">⬇️ Download</a>
+                <div class="form-group mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </div>
+    <div class="col-lg-6 d-flex flex-column">
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="Enter a title for your post", id="form-title") }}
+            {% for error in form.title.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mt-3">
+            {{ form.subtitle.label(class="form-label") }}
+            {{ form.subtitle(class="form-control", placeholder="Enter a subtitle or caption", id="form-subtitle") }}
+            {% for error in form.subtitle.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Trigger and hidden input -->
+        <div class="form-group mt-3">
+            <label for="image_id" class="form-label">Selected Image</label>
+            {{ form.image_id(id="image_id") }}
+            <div>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#imageSelectModal">
+                    Choose Image
+                </button>
+                <span id="selectedImageTitle" class="ms-2 text-muted">No image selected</span>
+            </div>
+            {% for error in form.image_id.errors %}
+            <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</form>
+
+<!-- Modal for selecting image -->
+<div class="modal fade" id="imageSelectModal" tabindex="-1" aria-labelledby="imageSelectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageSelectModalLabel">Select an Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    {% for image in images %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card clickable" data-id="{{ image.id }}" data-title="{{ image.title }}"
+                            data-bs-dismiss="modal" onclick="selectImageFromCard(this)">
+                            <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
+                                alt="{{ image.title }}">
+                            <div class="card-body p-2 text-center">
+                                <p class="card-text small">{{ image.title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('form-title').addEventListener('input', function () {
+        document.getElementById('previewTitle').textContent = this.value || 'Your post title will appear here';
+    });
+    document.getElementById('form-subtitle').addEventListener('input', function () {
+        document.getElementById('previewSubtitle').textContent = this.value || 'This is a preview of what your shared post might look like.';
+    });
+
+    function selectImageFromCard(card) {
+        const id = card.getAttribute('data-id');
+        const title = card.getAttribute('data-title');
+        const imgSrc = card.querySelector('img').getAttribute('src');
+        document.getElementById('image_id').value = id;
+        document.getElementById('selectedImageTitle').textContent = title;
+
+        // Update image preview
+        document.getElementById('image-placeholder').classList.add('d-none');
+        const imgTag = document.getElementById('selected-image');
+        imgTag.setAttribute('src', imgSrc);
+        imgTag.classList.remove('d-none');
+    }
+</script>
+{% endblock %}
