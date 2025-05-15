@@ -47,7 +47,7 @@ def about():
 
 @app.route("/share")
 def share():
-    return render_template("share.html")
+    return render_template("share.html", timestamp=int(time.time()))
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
