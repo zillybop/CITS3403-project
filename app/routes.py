@@ -43,7 +43,7 @@ def upload():
 @login_required
 def about():
     images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("visualise.html", images=images)
+    return render_template("visualise.html", images=images, timestamp=int(time.time()))
 
 @app.route("/share")
 def share():

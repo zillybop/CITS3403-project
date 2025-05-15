@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Visualise{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/eye.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
 {% block page_header %}Visualise Your Image{% endblock %}
 {% block page_subheader %}Select one of your uploaded images to analyse its visual and file features.{% endblock %}
 
