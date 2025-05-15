@@ -85,7 +85,7 @@ def register():
         login_user(user)
         flash('Account created successfully. You are now logged in.', 'success')
         return redirect(url_for('introductory'))
-    return render_template("register.html", form=form)
+    return render_template("register.html", form=form, timestamp=int(time.time()))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
