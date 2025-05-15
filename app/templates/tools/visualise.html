@@ -89,9 +89,6 @@
   import { handleImageSelection } from "{{ url_for('static', filename='js/imageSelector.js') }}";
 
   function calculateImageData(imageElement) {
-    //document.getElementById("channel_prev").classList.add('d-none'); -- Testing these being done by the image selector function
-    //document.getElementById("hist_prev").classList.add('d-none');
-
     const canvas = document.createElement('canvas');
     canvas.width = imageElement.naturalWidth;
     canvas.height = imageElement.naturalHeight;
