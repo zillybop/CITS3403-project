@@ -37,7 +37,7 @@ def upload():
         flash('Image uploaded successfully!', 'success')
         return redirect(url_for('upload'))
 
-    return render_template('upload.html', form=form, images=images)
+    return render_template('upload.html', form=form, images=images, timestamp=int(time.time()))
 
 @app.route("/visualise")
 @login_required
