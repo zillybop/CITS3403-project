@@ -1,6 +1,8 @@
 {% extends "social/base.html" %}
+
+{% block title %}Create Post{% endblock %}
 {% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/document-plus.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
-{% block title %}Friend Feed - Vision Toolkit{% endblock %}
+
 {% block page_header %}Create a post{% endblock %}
 {% block page_subheader %}Make a post for your follower's feeds.{% endblock %}
 
