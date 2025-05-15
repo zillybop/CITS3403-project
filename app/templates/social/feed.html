@@ -1,0 +1,32 @@
+{% extends "social/base.html" %}
+{% block title %}Friend Feed - Vision Toolkit{% endblock %}
+{% block page_header %}Feed{% endblock %}
+{% block page_subheader %}See what your friends have been envisioning!{% endblock %}
+
+{% block social_content %}
+{% for post in posts %}
+  <div class="col-lg-6 d-flex flex-column card mx-auto mb-4" style="max-width: 600px;">
+    <div class="card-body text-center p-0">
+      <div class="card-body text-center">
+        {% if post.image %}
+          <img src="{{ url_for('uploaded_file', filename=post.image.filename) }}" class="img-fluid" alt="{{ post.title }}">
+        {% else %}
+          <div id="image-placeholder" class="image-placeholder">
+            <p class="text-muted">No image selected</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{ post.title }}</h5>
+      <p class="card-text text-muted">Posted by <strong>{{ post.user.username }}</strong> • {{ post.timestamp.strftime('%b %d, %Y %I:%M %p') }}</p>
+      <p class="card-text">{{ post.subtitle }}</p>
+      <a href="#" class="btn btn-outline-danger btn-sm">🌄 Visualise</a>
+      <a href="#" class="btn btn-outline-primary btn-sm">💬 Comment</a>
+      <a href="#" class="btn btn-outline-success btn-sm">⬇️ Download</a>
+    </div>
+  </div>
+{% endfor %}
+<div class="mt-4 mb-4 text-center"></div>
+<a href="{{ url_for('list_users') }}" class="btn btn-outline-primary mb-5">👥 Find Users to Follow</a>
+{% endblock %}
