@@ -107,7 +107,7 @@
                 resolutionElement: document.getElementById('resolution'),
                 fileTypeElement: document.getElementById('filetype'),
                 iconElement: document.getElementById('img_icon'),
-                updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
+                updateIcon: "{{ url_for('static', filename='images/icons/arrow-path.svg') }}",
                 onImageSelected: () => {
                     const selectedImage = document.getElementById('selected-image');
                     const originalCanvas = document.getElementById('sobel-original');

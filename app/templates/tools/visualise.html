@@ -48,7 +48,7 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 id="image-title" class="mb-0">Image Title</h5>
         <a href="#" data-bs-toggle="modal" data-bs-target="#imageSelectModal">
-          <img id="img_icon" class="icon-hover" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; vertical-align: middle;">
+          <img id="img_icon" class="icon-hover" src="{{ url_for('static', filename='images/icons/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; vertical-align: middle;">
         </a>
       </div>
       <div class="card-body text-center">
@@ -132,7 +132,7 @@
         resolutionElement: document.getElementById('resolution'),
         fileTypeElement: document.getElementById('filetype'),
         iconElement: document.getElementById('img_icon'),
-        updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
+        updateIcon: "{{ url_for('static', filename='images/icons/arrow-path.svg') }}",
       onImageSelected: () => {
         const img = document.getElementById('selected-image');
         const { histogramData, colorChanData } = calculateImageData(img);
