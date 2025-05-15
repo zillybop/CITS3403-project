@@ -125,7 +125,6 @@ def create_post():
     images = Image.query.filter_by(user_id=current_user.id).all()
     app.logger.debug(f"Form data: id=post.id, title={form.title.data}, subtitle={form.subtitle.data}, image_id={form.image_id.data}, user_id={current_user.id}")
     if form.validate_on_submit():
-        print("this seems to have been validated\n yipee")
         post = Post(
             title=form.title.data,
             subtitle=form.subtitle.data,
