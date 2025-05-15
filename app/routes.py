@@ -40,22 +40,19 @@ def upload():
 
     return render_template('upload.html', form=form, images=images)
 
-@app.route("/visualise") # This is currently "manipulate" in the nav-bar. eventually would like to put it into an analysis or more consolidated form
-@login_required
-def visualise():
-    images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("visualise.html", images=images)
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    upload_folder = os.path.join(app.root_path, 'uploads')
+    return send_from_directory(upload_folder, filename)
 
 @app.route('/social')
 @login_required
 def social_home():
     return redirect(url_for('social_feed'))
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    upload_folder = os.path.join(app.root_path, 'uploads')
-    return send_from_directory(upload_folder, filename)
-
+@app.route('/tools')
+def tools():
+    return redirect(url_for('visualise'))
 
 #--------------- SOCIAL ROUTES ------------------------
 @app.route('/social/feed')
@@ -137,6 +134,23 @@ def create_post():
         return redirect(url_for('social_feed'))
     return render_template("social/create_post.html", form=form, images=images)
 
+#------------ TOOL ROUTES ------------------------
+@app.route("/tools/visualise") # This is currently "manipulate" in the nav-bar. eventually would like to put it into an analysis or more consolidated form
+@login_required
+def visualise():
+    images = Image.query.filter_by(user_id=current_user.id).all()
+    return render_template("tools/visualise.html", images=images)
+
+@app.route("/tools/edge_detect")
+@login_required
+def edge_detect():
+    images = Image.query.filter_by(user_id=current_user.id).all()
+    return render_template("tools/edge_detect.html", images=images)
+
+@app.route("/tools/histogram")
+@login_required
+def histogram():
+    return render_template("tools/histogram.html")
 
 #------------ LOGIN ROUTES ------------------------
 @app.route("/login", methods=['GET', 'POST'])

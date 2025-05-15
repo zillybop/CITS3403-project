@@ -1,10 +1,9 @@
-{% extends "base.html" %}
+{% extends "tools/base.html" %}
 
-{% block title %}Visualise{% endblock %}
 {% block page_header %}Visualise Your Image{% endblock %}
 {% block page_subheader %}Select one of your uploaded images to analyse its visual and file features.{% endblock %}
 
-{% block content %}
+{% block tools_content %}
 <style>
 </style>
 <!-- Modal for selecting image -->
@@ -46,7 +45,7 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 id="image-title" class="mb-0">Image Title</h5>
         <a href="#" data-bs-toggle="modal" data-bs-target="#imageSelectModal">
-          <img id="img_icon" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; vertical-align: middle;">
+          <img id="img_icon" class="icon-hover" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; vertical-align: middle;">
         </a>
       </div>
       <div class="card-body text-center">
@@ -86,11 +85,10 @@
   </div>
 </div>
 
-<script>
-  function calculateImageData(imageElement) {
-    document.getElementById('hist_prev').style.display = 'none';
-    document.getElementById('channel_prev').style.display = 'none';
+<script type="module">
+  import { handleImageSelection } from "{{ url_for('static', filename='js/imageSelector.js') }}";
 
+  function calculateImageData(imageElement) {
     const canvas = document.createElement('canvas');
     canvas.width = imageElement.naturalWidth;
     canvas.height = imageElement.naturalHeight;
@@ -100,7 +98,7 @@
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
-    const histogram = new Array(256).fill(0);  // Intensity Histogram
+    const histogram = new Array(256).fill(0);
     const red = new Array(256).fill(0);
     const green = new Array(256).fill(0);
     const blue = new Array(256).fill(0);
@@ -116,96 +114,58 @@
       blue[b]++;
     }
 
-    return {
-      histogramData: histogram,
-      colorChanData: {
-        red: red,
-        green: green,
-        blue: blue
-      }
-    };
+    return { histogramData: histogram, colorChanData: { red, green, blue } };
   }
-  let histogramChartInstance = null;  // Store the Histogram Chart instance globally
-  let colorChartInstance = null;      // Store the Color Channel Chart instance globally
 
-  function selectImageFromCard(card) {
-    const src = card.querySelector('img').src;
-    const title = card.dataset.title;
-    const filename = card.dataset.filename;
+  let histogramChartInstance = null;
+  let colorChartInstance = null;
 
-    const img = document.getElementById('selected-image');
-    const label = document.getElementById('image-title');
-    const placeholder = document.getElementById('image-placeholder');
+  window.selectImageFromCard = function (card) {
+    handleImageSelection(card, {
+        imgElement: document.getElementById('selected-image'),
+        labelElement: document.getElementById('image-title'),
+        placeholderElement: document.getElementById('image-placeholder'),
+        placeholderIds: ["channel_prev", "hist_prev"],
+        resolutionElement: document.getElementById('resolution'),
+        fileTypeElement: document.getElementById('filetype'),
+        iconElement: document.getElementById('img_icon'),
+        updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
+      onImageSelected: () => {
+        const img = document.getElementById('selected-image');
+        const { histogramData, colorChanData } = calculateImageData(img);
 
-    img.src = src;
-    img.classList.remove('d-none');
-    placeholder.classList.add('d-none');
-    label.textContent = title;
 
-    const resolution = document.getElementById('resolution');
-    resolution.innerHTML = img.naturalWidth + 'x' + img.naturalHeight + ' pixels';
+        if (histogramChartInstance) histogramChartInstance.destroy();
+        const ctx = document.getElementById('histogramChart').getContext('2d');
+        histogramChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Array.from({ length: 256 }, (_, i) => i),
+            datasets: [{
+              label: 'Intensity Distribution',
+              data: histogramData,
+              backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+          },
+          options: { scales: { y: { beginAtZero: true } } }
+        });
 
-    const file_type = document.getElementById('filetype');
-    file_type.innerHTML = filename.split('.').pop().toUpperCase();
-
-    document.getElementById('img_icon').src = "{{ url_for('static', filename='images/arrow-path.svg') }}";
-
-    const { histogramData, colorChanData } = calculateImageData(img);
-
-    if (histogramChartInstance) {
-      histogramChartInstance.destroy();
-    }
-    const ctx = document.getElementById('histogramChart').getContext('2d');
-    histogramChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: Array.from({length: 256}, (_, i) => i),  // 0 to 255 bins
-        datasets: [{
-          label: 'Intensity Distribution',
-          data: histogramData,
-          backgroundColor: 'rgba(54, 162, 235, 0.6)'
-        }]
-      },
-      options: {
-        scales: {
-          y: { beginAtZero: true }
-        }
+        if (colorChartInstance) colorChartInstance.destroy();
+        const ctxColor = document.getElementById('colochanChart').getContext('2d');
+        colorChartInstance = new Chart(ctxColor, {
+          type: 'bar',
+          data: {
+            labels: Array.from({ length: 256 }, (_, i) => i),
+            datasets: [
+              { label: 'Red Channel', data: colorChanData.red, backgroundColor: 'rgba(255, 99, 132, 0.5)' },
+              { label: 'Green Channel', data: colorChanData.green, backgroundColor: 'rgba(75, 192, 192, 0.5)' },
+              { label: 'Blue Channel', data: colorChanData.blue, backgroundColor: 'rgba(54, 162, 235, 0.5)' }
+            ]
+          },
+          options: { scales: { y: { beginAtZero: true } } }
+        });
       }
     });
-
-    // Add Color Channel Breakdown Chart
-    if (colorChartInstance) {
-      colorChartInstance.destroy();
-    }
-    const ctxColor = document.getElementById('colochanChart').getContext('2d');
-    colorChartInstance = new Chart(ctxColor, {
-      type: 'bar',
-      data: {
-        labels: Array.from({length: 256}, (_, i) => i),
-        datasets: [
-          {
-            label: 'Red Channel',
-            data: colorChanData.red,
-            backgroundColor: 'rgba(255, 99, 132, 0.5)'
-          },
-          {
-            label: 'Green Channel',
-            data: colorChanData.green,
-            backgroundColor: 'rgba(75, 192, 192, 0.5)'
-          },
-          {
-            label: 'Blue Channel',
-            data: colorChanData.blue,
-            backgroundColor: 'rgba(54, 162, 235, 0.5)'
-          }
-        ]
-      },
-      options: {
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-  }
+  };
 </script>
 {% endblock %}

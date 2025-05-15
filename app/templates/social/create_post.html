@@ -1,7 +1,7 @@
 {% extends "social/base.html" %}
 {% block title %}Friend Feed - Vision Toolkit{% endblock %}
-{% block page_header %}Feed{% endblock %}
-{% block page_subheader %}See what your friends have been envisioning!{% endblock %}
+{% block page_header %}Create a post{% endblock %}
+{% block page_subheader %}Make a post for your follower's feeds.{% endblock %}
 
 {% block social_content %}
 <form method="POST" action="" enctype="multipart/form-data"
@@ -96,26 +96,23 @@
     </div>
 </div>
 
-<script>
-    document.getElementById('form-title').addEventListener('input', function () {
-        document.getElementById('previewTitle').textContent = this.value || 'Your post title will appear here';
-    });
-    document.getElementById('form-subtitle').addEventListener('input', function () {
-        document.getElementById('previewSubtitle').textContent = this.value || 'This is a preview of what your shared post might look like.';
-    });
+<script type="module">
+  import { handleImageSelection } from "{{ url_for('static', filename='js/imageSelector.js') }}";
 
-    function selectImageFromCard(card) {
-        const id = card.getAttribute('data-id');
-        const title = card.getAttribute('data-title');
-        const imgSrc = card.querySelector('img').getAttribute('src');
-        document.getElementById('image_id').value = id;
-        document.getElementById('selectedImageTitle').textContent = title;
+  window.selectImageFromCard = function (card) {
+    handleImageSelection(card, {
+      imgElement: document.getElementById('selected-image'),
+      labelElement: document.getElementById('selectedImageTitle'),
+      inputElement: document.getElementById('image_id'),
+      placeholderElement: document.getElementById('image-placeholder')
+    });
+  };
 
-        // Update image preview
-        document.getElementById('image-placeholder').classList.add('d-none');
-        const imgTag = document.getElementById('selected-image');
-        imgTag.setAttribute('src', imgSrc);
-        imgTag.classList.remove('d-none');
-    }
+  document.getElementById('form-title').addEventListener('input', function () {
+    document.getElementById('previewTitle').textContent = this.value || 'Your post title will appear here';
+  });
+  document.getElementById('form-subtitle').addEventListener('input', function () {
+    document.getElementById('previewSubtitle').textContent = this.value || 'This is a preview of what your shared post might look like.';
+  });
 </script>
 {% endblock %}

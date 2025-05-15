@@ -1,0 +1,171 @@
+{% extends 'tools/base.html' %}
+
+{% block page_header %}Detect Edges{% endblock %}
+{% block page_subheader %}Select one of your uploaded images to run an edge detection algorithm on.{% endblock %}
+
+{% block tools_content %}
+<!-- Modal for selecting image -->
+<div class="modal fade" id="imageSelectModal" tabindex="-1" aria-labelledby="imageSelectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageSelectModalLabel">Select an Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    {% for image in images %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card clickable" data-filename="{{ image.filename }}" data-title="{{ image.title }}"
+                            data-bs-dismiss="modal" onclick="selectImageFromCard(this)">
+                            <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
+                                alt="{{ image.title }}">
+                            <div class="card-body p-2 text-center">
+                                <p class="card-text small">{{ image.title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main content area -->
+    <div class="col-md-9">
+        <div class="card p-4 mb-4" id="sobel">
+            <h4 class="mb-3">Sobel Operator</h4>
+            <p class="text-muted">Apply a Sobel edge detector to your selected image.</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="sobel-original-container"
+                        class="card-image-preview image-placeholder d-flex flex-column justify-content-center align-items-center text-center clickable"
+                        data-bs-toggle="modal"
+                        data-bs-target="#imageSelectModal">
+                        <div id="iconPrev" class="plus-icon-wrapper"></div>
+                        <p id="originalImagePrev" class="text-muted image-title-center">Original Image</p>
+                        <img id="selected-image" src="" class="img-fluid d-none" alt="Selected image">
+                        <canvas id="sobel-original" class="img-fluid d-none"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="sobel-output-container"
+                        class="card-image-preview image-placeholder d-flex flex-column justify-content-center align-items-center text-center">
+                        <p id="outputPrev" class="text-muted image-title-center">Sobel Output</p>
+                        <canvas id="sobel-output" class="img-fluid d-none"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label id="threshold_label" for="sobel-threshold" class="form-label">Edge Threshold 100</label>
+                <input type="range" class="form-range" id="sobel-threshold" min="0" max="255" value="100">
+            </div>
+        </div>
+
+        <!-- Additional algorithm fragments can go here -->
+    </div>
+
+    <!-- Right-hand algorithm selector -->
+    <div class="col-md-3">
+        <div class="list-group sticky-top">
+            <a href="#sobel" class="list-group-item list-group-item-action">Sobel</a>
+            <a href="#canny" class="list-group-item list-group-item-action disabled">Canny (Coming Soon)</a>
+            <a href="#laplacian" class="list-group-item list-group-item-action disabled">Laplacian (Coming Soon)</a>
+        </div>
+    </div>
+</div>
+<script>
+    let originalMat = null; // Image cached for memory – avoids multiple readbacks (imread) in runSobel()
+    
+    document.getElementById('sobel-threshold').addEventListener('input', () => {
+        console.log('slider moved');
+        document.getElementById('threshold_label').innerHTML = "Edge Threshold " + parseInt(document.getElementById('sobel-threshold').value);
+        if (cvReady && typeof cv !== 'undefined' && cv.imread) {
+            runSobel();
+        }
+    });
+
+    window.selectImageFromCard = function (card) {
+        const container = document.getElementById('sobel-original-container');
+        container.classList.remove('card-image-preview', 'image-placeholder');
+
+        const outContainer = document.getElementById('sobel-output-container');
+        outContainer.classList.remove('card-image-preview', 'image-placeholder');
+
+        import("{{ url_for('static', filename='js/imageSelector.js') }}").then(module => {
+            module.handleImageSelection(card, {
+                imgElement: document.getElementById('selected-image'),
+                labelElement: document.getElementById('image-title'),
+                placeholderElement: document.getElementById('image-placeholder'),
+                placeholderIds: ["originalImagePrev", "iconPrev", "outputPrev"],
+                resolutionElement: document.getElementById('resolution'),
+                fileTypeElement: document.getElementById('filetype'),
+                iconElement: document.getElementById('img_icon'),
+                updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
+                onImageSelected: () => {
+                    const selectedImage = document.getElementById('selected-image');
+                    const originalCanvas = document.getElementById('sobel-original');
+                    const ctx = originalCanvas.getContext('2d');
+
+                    originalCanvas.width = selectedImage.naturalWidth;
+                    originalCanvas.height = selectedImage.naturalHeight;
+                    ctx.drawImage(selectedImage, 0, 0);
+                    selectedImage.classList.add('d-none');
+
+                    originalCanvas.classList.remove('d-none');
+
+                    if (cvReady && typeof cv !== 'undefined' && cv.imread) {
+                        if (originalMat) {
+                            originalMat.delete();
+                        }
+                        originalMat = cv.imread('sobel-original');
+                        runSobel();
+                    } else {
+                        console.warn("OpenCV not ready yet");
+                    }
+                }
+            });
+        });
+    }
+    let cvReady = false;
+    function onOpenCvReady() {
+        console.log('OpenCV.js is ready!');
+        cvReady = true;
+    }
+
+    function runSobel() {
+        console.log('running sobel');
+        const outputCanvas = document.getElementById('sobel-output');
+        const src = originalMat.clone();
+
+        let gray = new cv.Mat();
+        let grad = new cv.Mat();
+        let absGradX = new cv.Mat();
+        let absGradY = new cv.Mat();
+        let binary = new cv.Mat();
+        
+        const threshold = parseInt(document.getElementById('sobel-threshold').value);
+
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        cv.Sobel(gray, absGradX, cv.CV_16S, 1, 0, 3);
+        cv.convertScaleAbs(absGradX, absGradX);
+        
+        cv.Sobel(gray, absGradY, cv.CV_16S, 0, 1, 3);
+        cv.convertScaleAbs(absGradY, absGradY);
+        
+        cv.addWeighted(absGradX, 0.5, absGradY, 0.5, 0, grad);
+        cv.threshold(grad, binary, threshold, 255, cv.THRESH_BINARY);
+
+        cv.imshow('sobel-output', binary);
+        //document.getElementById('sobel-output').classList.remove('d-none');
+        outputCanvas.classList.remove('d-none');
+
+        src.delete(); gray.delete(); grad.delete();
+        absGradX.delete(); absGradY.delete(); binary.delete();
+        console.log('finished running sobel');
+    }
+</script>
+{% endblock %}
