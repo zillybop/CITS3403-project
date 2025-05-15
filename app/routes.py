@@ -62,7 +62,7 @@ def social_feed():
     followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
     followed_ids.append(current_user.id)
     posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
-    return render_template('social/feed.html', posts=posts)
+    return render_template('social/feed.html', posts=posts, timestamp=int(time.time()))
 
 @app.route('/social/users')
 @login_required
@@ -79,7 +79,7 @@ def list_users():
     for user in users:
         status = status_map.get(user.id, -1)
         user_statuses.append((user, status))
-    return render_template('social/users.html', user_statuses=user_statuses, followers=followers)
+    return render_template('social/users.html', user_statuses=user_statuses, followers=followers, timestamp=int(time.time()))
 
 @app.route('/social/follow/<int:user_id>', methods=['POST'])
 @login_required
@@ -105,7 +105,7 @@ def remove_follower(user_id):
 @login_required
 def inbox():
     follow_requests = current_user.followers.filter_by(accepted=False).all()
-    return render_template('social/inbox.html', requests=follow_requests)
+    return render_template('social/inbox.html', requests=follow_requests, timestamp=int(time.time()))
 
 @app.route('/social/accept_follow/<int:req_id>', methods=['POST'])
 @login_required
@@ -133,25 +133,25 @@ def create_post():
         db.session.commit()
         flash('Post created successfully!', 'success')
         return redirect(url_for('social_feed'))
-    return render_template("social/create_post.html", form=form, images=images)
+    return render_template("social/create_post.html", form=form, images=images, timestamp=int(time.time()))
 
 #------------ TOOL ROUTES ------------------------
 @app.route("/tools/visualise") # This is currently "manipulate" in the nav-bar. eventually would like to put it into an analysis or more consolidated form
 @login_required
 def visualise():
     images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("tools/visualise.html", images=images)
+    return render_template("tools/visualise.html", images=images, timestamp=int(time.time()))
 
 @app.route("/tools/edge_detect")
 @login_required
 def edge_detect():
     images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("tools/edge_detect.html", images=images)
+    return render_template("tools/edge_detect.html", images=images, timestamp=int(time.time()))
 
 @app.route("/tools/histogram")
 @login_required
 def histogram():
-    return render_template("tools/histogram.html")
+    return render_template("tools/histogram.html", timestamp=int(time.time()))
 
 #------------ LOGIN ROUTES ------------------------
 @app.route("/login", methods=['GET', 'POST'])

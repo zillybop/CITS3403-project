@@ -1,5 +1,6 @@
 {% extends "social/base.html" %}
 {% block title %}Inbox - Vision Toolkit{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/archive-box-arrow-down.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
 {% block page_header %}Inbox{% endblock %}
 {% block page_subheader %}See follow requests or posts from friends.{% endblock %}
 

@@ -1,5 +1,6 @@
 {% extends "social/base.html" %}
 {% block title %}Friend Feed - Vision Toolkit{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/bars-3-bottom-left.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
 {% block page_header %}Feed{% endblock %}
 {% block page_subheader %}See what your friends have been envisioning!{% endblock %}
 
