@@ -260,7 +260,7 @@ def list_users():
         'social/users.html',
         user_statuses=user_statuses,
         followers=followers,
-        current_page="social"
+        current_page="social",
         timestamp=int(time.time())
     )
 
@@ -432,7 +432,7 @@ def edge_detect():
                            prefill_tool=prefill_tool,
                            prefill_threshold=prefill_threshold,
                            prefill_filename=prefill_filename,
-                           timestamp=int(time.time())
+                           timestamp=int(time.time()),
                            current_page="tools"
             )
 
