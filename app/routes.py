@@ -1,10 +1,13 @@
 from app import app
-from flask import render_template, flash, redirect, url_for, send_from_directory, request
+from flask import render_template, flash, redirect, url_for, send_from_directory
+from app.forms import LoginForm, RegisterForm, UploadForm, PostForm 
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import LoginForm, RegisterForm, UploadForm, PostForm, ToolResultForm
 from app.models import User, Image, FollowRequest, Post
 from app import db
+from flask import request, jsonify
+from sqlalchemy import func
 import os, base64
 from werkzeug.datastructures import MultiDict
 
@@ -57,6 +60,30 @@ def tools():
     return redirect(url_for('visualise'))
 
 #--------------- SOCIAL ROUTES ------------------------
+@app.route('/api/users/search')
+@login_required
+def api_users_search():
+    q = request.args.get('q', '').strip()
+    if not q:
+        return jsonify([])
+
+    # case-insensitive search in a DB-agnostic way
+    matches = User.query.filter(
+        User.id != current_user.id,
+        func.lower(User.username).contains(q.lower())
+    ).all()
+
+    outgoing = FollowRequest.query.filter_by(follower_id=current_user.id).all()
+    status_map = {fr.followed_id: fr.accepted for fr in outgoing}
+
+    payload = [{
+        'id':       u.id,
+        'username': u.username,
+        'isFriend': status_map.get(u.id, False)
+    } for u in matches]
+
+    return jsonify(payload)
+
 @app.route('/social/feed')
 @login_required
 def social_feed():
@@ -174,28 +201,67 @@ def reopen_tool(image_id):
 @app.route('/social/users')
 @login_required
 def list_users():
-    users = User.query.filter(User.id != current_user.id).all() # TODO: fuzzy search through all accounts with client-side rendering
+    # grab the raw search term
+    q = request.args.get('search', '').strip()
 
-    follow_requests = FollowRequest.query.filter_by(follower_id=current_user.id).all()
-    status_map = {fr.followed_id: (1 if fr.accepted else 0) for fr in follow_requests}
+    # build a map of “who I’ve already requested/accepted”
+    outgoing = FollowRequest.query.filter_by(follower_id=current_user.id).all()
+    status_map = { fr.followed_id: fr.accepted for fr in outgoing }
+
+    # If this is our AJAX‐search call, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # empty search => no results
+        if not q:
+            return jsonify([])
+        # find everyone except me whose username contains q (case-insensitive)
+        matches = (User.query
+                       .filter(User.id != current_user.id)
+                               
+                       .all())
+        return jsonify([
+            {
+                'id':       u.id,
+                'username': u.username,
+                'isFriend': bool(status_map.get(u.id, False))
+            }
+            for u in matches
+        ])
+
+    # Otherwise render full page
+    # ────────────────────────
+    # Existing “all users” list (for initial load)
+    all_users = User.query.filter(User.id != current_user.id).all()
+    user_statuses = [
+        (u, 1 if status_map.get(u.id) else -1)
+        for u in all_users
+    ]
+    # Your followers panel
     followers = [
-        fr.follower for fr in FollowRequest.query.filter_by(followed_id=current_user.id, accepted=True).all()
+        fr.follower
+        for fr in FollowRequest.query.filter_by(followed_id=current_user.id, accepted=True)
     ]
 
-    user_statuses = []
-    for user in users:
-        status = status_map.get(user.id, -1)
-        user_statuses.append((user, status))
-    return render_template('social/users.html', user_statuses=user_statuses, followers=followers)
+    return render_template(
+        'social/users.html',
+        user_statuses=user_statuses,
+        followers=followers
+    )
+
 
 @app.route('/social/follow/<int:user_id>', methods=['POST'])
 @login_required
 def send_follow_request(user_id):
-    existing = FollowRequest.query.filter_by(follower_id=current_user.id, followed_id=user_id).first()
+    existing = FollowRequest.query.filter_by(
+        follower_id=current_user.id,
+        followed_id=user_id
+    ).first()
     if not existing:
         fr = FollowRequest(follower_id=current_user.id, followed_id=user_id)
         db.session.add(fr)
         db.session.commit()
+    # AJAX OK response
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({ 'success': True, 'status': 'pending' })
     return redirect(url_for('list_users'))
 
 @app.route('/social/remove_follower/<int:user_id>', methods=['POST'])
