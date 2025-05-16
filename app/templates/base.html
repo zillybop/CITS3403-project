@@ -13,17 +13,18 @@
 
 <body class="{{ request.endpoint }}">
   {% with messages = get_flashed_messages(with_categories=True) %}
-  {% if messages %}
-  <div class="container mt-3">
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   {% endwith %}
+
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <div>
@@ -42,40 +43,59 @@
         <span class="me-3">Hello, {{ current_user.username }}!</span>
         <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn">Log out</a>
         {% else %}
-        <a href="{{ url_for('login') }}" class="btn btn-primary btn">Log in</a>
+          <a href="{{ url_for('login') }}" class="btn btn-primary btn">Log in</a>
         {% endif %}
       </div>
     </div>
+
     {% block content %}{% endblock %}
   </div>
+
+  <!-- Bootstrap & scripts -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script defer src="https://docs.opencv.org/4.5.5/opencv.js"></script>
 
+  <!-- bottom navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-bottom">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Vision Toolkit</a>
+      <a class="navbar-brand" href="{{ url_for('introductory') }}">Vision Toolkit</a>
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="/introductory">Introductory</a>
+          <a
+            class="nav-link {% if current_page == 'introductory' %}active{% endif %}"
+            href="{{ url_for('introductory') }}"
+            {% if current_page == 'introductory' %}aria-disabled="true"{% endif %}
+          >Introductory</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/upload">Upload</a>
+          <a
+            class="nav-link {% if current_page == 'upload' %}active{% endif %}"
+            href="{{ url_for('upload') }}"
+            {% if current_page == 'upload' %}aria-disabled="true"{% endif %}
+          >Upload</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/social">Social</a>
+          <a
+            class="nav-link {% if current_page == 'social' %}active{% endif %}"
+            href="{{ url_for('social_home') }}"
+            {% if current_page == 'social' %}aria-disabled="true"{% endif %}
+          >Social</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/tools">Tools</a>
+          <a
+            class="nav-link {% if current_page == 'tools' %}active{% endif %}"
+            href="{{ url_for('tools') }}"
+            {% if current_page == 'tools' %}aria-disabled="true"{% endif %}
+          >Tools</a>
         </li>
       </ul>
     </div>
   </nav>
 
-{% block scripts %}{% endblock %}
-
+  {% block scripts %}{% endblock %}
 </body>
 
 </html>
