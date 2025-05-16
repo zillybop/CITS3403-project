@@ -30,6 +30,14 @@
                     <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top" alt="{{ image.title }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ image.title }}</h5>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
+                            <img src="{{ url_for('static', filename='images/icons/trash_red.svg') }}" 
+                            class="card-image-bottom" 
+                            alt="Delete Image"
+                            style="opacity: 0.5; max-width: 10%; max-height: 10%;"
+                            onmouseover="this.style.opacity=1;" 
+                            onmouseout="this.style.opacity=0.5;">
+                        </a>
                     </div>
                 </div>
             </div>
@@ -88,5 +96,24 @@
     {% endfor %}
 
     <!--Delete Modal-->
+    {% for image in images %}
+    <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ image.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ image.id }}">Are you sure you want to delete {{ image.title }}?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <form action="{{ url_for('upload') }}" method="post">
+                        <input type="hidden" name="image_id" value="{{ image.id }}">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger" name="delete" value="{{ image.id }}">Yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
 {% endblock %}
