@@ -1,35 +1,20 @@
 {% extends "social/base.html" %}
-{% block title %}Follow Users - Vision Toolkit{% endblock %}
+
+{% block title %}Follow Users – Vision Toolkit{% endblock %}
 {% block page_header %}Follow{% endblock %}
 {% block page_subheader %}If accepted, you will see their posts on your feed.{% endblock %}
 
 {% block social_content %}
-
 <div class="row">
   <div class="col-md-6">
     <h2>Discover Users</h2>
-    <ul class="list-group">
-      <li class="list-group-item">
-        <form method="get" action="{{ url_for('list_users') }}" class="mb-3">
-          <input type="text" name="search" class="form-control" placeholder="Search users..."
-            value="{{ request.args.get('search', '') }}">
-        </form>
-      </li>
-      {% for user, status in user_statuses %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        {{ user.username }}
-        <form method="post" action="{{ url_for('send_follow_request', user_id=user.id) }}">
-          {% if status == -1 %}<button type="submit" class="btn btn-primary btn-sm">Follow</button>
-          {% elif status == 0 %}<button type="button" class="btn btn-warning btn-sm" disabled>Requested</button>
-          {% elif status == 1 %}<button type="button" class="btn btn-success btn-sm" disabled>Following</button>
-          {% endif %}
-        </form>
-      </li>
-      {% else %}
-      <li class="list-group-item">No other users to follow.</li>
-      {% endfor %}
-    </ul>
-    <a href="{{ url_for('inbox') }}" class="btn btn-primary btn">Manage your follow requests</a>
+    <input
+      type="text"
+      id="friendSearchInput"
+      class="form-control mb-2"
+      placeholder="Search users…"
+    />
+    <ul id="friendSearchResults" class="list-group mb-3"></ul>
   </div>
   <div class="col-md-6">
     <h2>Your Followers</h2>
@@ -37,14 +22,107 @@
       {% for follower in followers %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         {{ follower.username }}
-        <form method="post" action="{{ url_for('remove_follower', user_id=follower.id) }}">
-          <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+        <form method="post"
+              action="{{ url_for('remove_follower', user_id=follower.id) }}">
+          <button type="submit" class="btn btn-outline-danger btn-sm">
+            Remove
+          </button>
         </form>
       </li>
       {% else %}
       <li class="list-group-item">You currently have no followers.</li>
       {% endfor %}
     </ul>
+    <a href="{{ url_for('inbox') }}" class="btn btn-primary">
+      Manage your follow requests
+    </a>
   </div>
 </div>
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const input     = document.getElementById('friendSearchInput');
+  const results   = document.getElementById('friendSearchResults');
+  const csrfToken = document.querySelector("meta[name='csrf-token']").content;
+  let   debounce;
+
+  // ———— 1) Search as you type ————
+  input.addEventListener('input', () => {
+    clearTimeout(debounce);
+    const q = input.value.trim();
+    if (!q) {
+      results.innerHTML = '';
+      return;
+    }
+    debounce = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          "{{ url_for('api_users_search') }}?q=" + encodeURIComponent(q),
+          { credentials: 'same-origin' }
+        );
+        if (!res.ok) throw new Error(res.statusText);
+        const users = await res.json();  // [{id, username, isFriend}, …]
+
+        results.innerHTML = users.map(u => `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            ${u.username}
+            <button
+              class="btn btn-sm btn-primary"
+              data-user-id="${u.id}"
+              ${u.isFriend ? 'disabled' : ''}
+            >${u.isFriend ? 'Requested' : 'Follow'}</button>
+          </li>
+        `).join('');
+      } catch(err) {
+        console.error('Search error:', err);
+      }
+    }, 300);
+  });
+
+  // ———— 2) Delegate follow-button clicks ————
+  results.addEventListener('click', async e => {
+    
+    const btn = e.target.closest('button[data-user-id]');
+    if (!btn) return;
+
+    const userId = btn.dataset.userId;
+    const csrfToken = document.querySelector("meta[name='csrf-token']").content;
+    btn.disabled    = true;
+    btn.textContent = 'Sending…';
+
+    try {
+     const res = await fetch(
+   `/social/follow/${userId}`,
+  {
+     method: 'POST',
+     credentials: 'same-origin',           
+     headers: {
+       'Content-Type': 'application/json',
+       'X-CSRFToken':    csrfToken,
+       'X-Requested-With':'XMLHttpRequest' 
+     }
+   }
+ );
+   const payload = await res.json();
+   if(res.ok && payload.success){
+      btn.textContent = 'Requested';
+   }
+   else{
+    throw new Error(payload.error || res.statusText);
+   }
+    } catch(err) {
+      console.error('Follow error:', err);
+      btn.disabled    = false;
+      btn.textContent = 'Follow';
+      alert('Could not send follow request.');
+    }
+  });
+
+  console.log('Users page script initialized.');
+});
+</script>
 {% endblock %}

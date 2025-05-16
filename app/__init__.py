@@ -4,10 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 from app.config import Config
 from flask_login import LoginManager
 from app.models import db
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+
+csrf = CSRFProtect()
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+csrf.init_app(app)
+app.jinja_env.globals['csrf_token'] = generate_csrf
 migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
