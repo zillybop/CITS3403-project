@@ -1,6 +1,6 @@
 from app import app
-from flask import render_template, flash, redirect, url_for, send_from_directory
-from app.forms import LoginForm, RegisterForm, UploadForm, PostForm 
+from flask import render_template, flash, redirect, url_for, send_from_directory, request
+from app.forms import LoginForm, RegisterForm, UploadForm, PostForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import LoginForm, RegisterForm, UploadForm, PostForm, ToolResultForm
@@ -20,13 +20,28 @@ def introductory():
 @app.route("/upload", methods=['GET', 'POST'])
 @login_required
 def upload():
-    form = UploadForm()
     images = Image.query.filter_by(user_id=current_user.id).all()
     print(images)
+    
+    if 'delete' in request.form:
+        image_id = request.form.get('image_id')
+        image = Image.query.filter_by(id=image_id, user_id=current_user.id).first()
+        if image:
+            filepath = os.path.join(app.root_path, 'uploads', image.filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            db.session.delete(image)
+            db.session.commit()
+            flash('Image deleted successfully!', 'success')
+        else:
+            flash('Error deleting image.', 'danger')
+        return redirect(url_for('upload'))
+    
+    form = UploadForm()
     if form.validate_on_submit():
         file = form.image.data
         image = Image(filename='', title=form.title.data, user_id=current_user.id)
-
+        
         db.session.add(image)
         db.session.flush()
         sanitized_filename = secure_filename(file.filename)
@@ -40,7 +55,7 @@ def upload():
         print(image)
         flash('Image uploaded successfully!', 'success')
         return redirect(url_for('upload'))
-
+    
     return render_template('upload.html', form=form, images=images, timestamp=int(time.time()))
 
 @app.route('/uploads/<filename>') #TODO: ensure user has access to this file
