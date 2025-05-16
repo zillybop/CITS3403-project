@@ -7,6 +7,7 @@
 {% block page_subheader %}Here is where you will be able to upload your data.{% endblock %}
 
 {% block content %}
+    <!-- Upload Button -->
     <div class="col-md-3 mb-4 mx-auto">
         <div class="card clickable" data-bs-toggle="modal" data-bs-target="#uploadModal">
             <img src="{{ url_for('static', filename='images/icons/arrow-up-on-square.svg') }}"
@@ -21,10 +22,11 @@
     <div>
         <hr>
     </div>
+    <!-- Images -->
     <div class="row mb-5">
         {% for image in images %}
             <div class="col-md-3 mb-4">
-                <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}"> <!--TODO this preview hasnt been implemented-->
+                <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}">
                     <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top" alt="{{ image.title }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ image.title }}</h5>
@@ -67,5 +69,24 @@
             </div>
         </div>
     </div>
+
+    <!--Preview Modal-->
+    {% for image in images %}
+    <div class="modal fade" id="previewModal{{ image.id }}" tabindex="-1" aria-labelledby="previewModalLabel{{ image.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel{{ image.id }}">{{ image.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="{{ image.title }}" class="img-fluid mb-3" style="max-height: 60vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!--Delete Modal-->
 
 {% endblock %}
