@@ -4,74 +4,21 @@
 {% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/bookmark.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
 
 {% block page_header %}Computer Vision Toolkit{% endblock %}
-{% block page_subheader %}Select a tool below to get started.{% endblock %}
+{% block page_subheader %}Log in to get started.{% endblock %}
 {% block content %}
 
-  <div class="row gx-4 gy-4">
-    <div class="col-md-4">
-      <a href="visualise.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Image Visualiser</h5>
-            <p class="card-text">Preview & explore image data.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="threshold.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Thresholding Tool</h5>
-            <p class="card-text">Apply binary & adaptive threshold filters.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="enhance.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Enhancer Studio</h5>
-            <p class="card-text">Adjust brightness, contrast, blur, etc.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="edges.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Edge Detection</h5>
-            <p class="card-text">Run Canny, Sobel & Laplacian filters.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="features.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Feature Extractor</h5>
-            <p class="card-text">SIFT, SURF & ORB keypoint analysis.</p>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="help.html" class="text-decoration-none">
-        <div class="card shadow-sm border-0 rounded-4 h-100">
-          <div class="card-body text-center">
-            <h5 class="card-title">Documentation</h5>
-            <p class="card-text">Learn how to use each module.</p>
-          </div>
-        </div>
-      </a>
-    </div>
+  <div>
+    <p>Welcome to the Computer Vision Toolkit.</p>
+    <p>This web-based toolkit provides a set of tools for image analysis pertaing to computer vision tasks.</p>
+    <p>Before you get started you'll need to <a href="{{ url_for('login') }}" class="link-primary">log in</a> or <a href="{{ url_for('register') }}" class="link-primary">make an account</a>.</p>
+    <p>Once you do you'll be able to navigate the website from down below:</p>
+    <ul>
+      <li><strong>Introductory</strong> - The page you're on now.  Provides website info and documentation.</li>
+      <li><strong>Upload</strong> - Here you'll be able to upload images to and manage your collection for use with the tools.</li>
+      <li><strong>Social</strong> - This is where you can follow other users and share your images with them.</li>
+      <li><strong>Tools</strong> - The core of the website.  Here you can manipulate your images with our tools.</li>
+    </ul>
+    <p>Thanks for using the Computer Vision Toolkit.</p>
   </div>
+
 {% endblock %}

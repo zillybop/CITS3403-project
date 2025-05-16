@@ -49,16 +49,24 @@ The logical layout of the website is as follows:
 | 23476285 | Ryan Allagapen | teylan3007 |
 
 ## Instructions for Launch
-Install requirements from requirements.txt
+### 1. Install requirements from requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
 
-Active the virtual environment
+
+### 2. Set following environment variable:
+
+- `SECRET_KEY`: Used by Flask to encrypt session cookies and enable CSRF protection.  
+  You can set it via:
 ```bash
-source application-env/bin/activate
+export SECRET_KEY="your-secret-key"
 ```
 
+Note: we do have a fallback key in the config.py file, but it is not recommended to use it in production.
+
+### 3. Run the application
+- Make sure you are in the root directory of the project.
 Run the application
 ```bash
 flask run
