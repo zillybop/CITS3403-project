@@ -130,10 +130,13 @@
                 iconElement: document.getElementById('img_icon'),
                 updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
                 onImageSelected: () => {
+                    console.log("onImageSelected triggered")
                     const selectedImage = document.getElementById('selected-image');
                     const originalCanvas = document.getElementById('sobel-original');
                     const ctx = originalCanvas.getContext('2d');
 
+                    console.log("Drawing image onto canvas", selectedImage.naturalWidth, selectedImage.naturalHeight);
+                    
                     originalCanvas.width = selectedImage.naturalWidth;
                     originalCanvas.height = selectedImage.naturalHeight;
                     ctx.drawImage(selectedImage, 0, 0);
@@ -141,14 +144,24 @@
 
                     originalCanvas.classList.remove('d-none');
 
+                    console.log("Checking if OpenCV is ready:", cvReady, typeof cv, typeof cv.imread);
                     if (cvReady && typeof cv !== 'undefined' && cv.imread) {
                         if (originalMat) {
                             originalMat.delete();
                         }
                         originalMat = cv.imread('sobel-original');
                         runSobel();
+                    } else if (typeof cv !== 'undefined') {
+                        cv['onRuntimeInitialized'] = () => {
+                            cvReady = true;
+                            if (originalMat) {
+                                originalMat.delete();
+                            }
+                            originalMat = cv.imread('sobel-original');
+                            runSobel();
+                        };
                     } else {
-                        console.warn("OpenCV not ready yet");
+                        console.warn("OpenCV not defined at all");
                     }
                 }
             });
@@ -156,9 +169,11 @@
     }
 
     function runSobel() {
+        console.log('runSobel called - starting edge detection');
         console.log('running sobel');
         const outputCanvas = document.getElementById('sobel-output');
         const src = originalMat.clone();
+        console.log('OriginalMat shape:', originalMat.cols, originalMat.rows);
 
         let gray = new cv.Mat();
         let grad = new cv.Mat();
@@ -169,22 +184,27 @@
         const threshold = parseInt(document.getElementById('sobel-threshold').value);
 
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        console.log('Converted to grayscale');
         cv.Sobel(gray, absGradX, cv.CV_16S, 1, 0, 3);
         cv.convertScaleAbs(absGradX, absGradX);
-        
         cv.Sobel(gray, absGradY, cv.CV_16S, 0, 1, 3);
         cv.convertScaleAbs(absGradY, absGradY);
-        
+        console.log('Computed Sobel gradients');
         cv.addWeighted(absGradX, 0.5, absGradY, 0.5, 0, grad);
+        console.log('Combined gradients');
         cv.threshold(grad, binary, threshold, 255, cv.THRESH_BINARY);
+        console.log('Applied binary threshold at', threshold);
 
+        console.log('About to call cv.imshow');
         cv.imshow('sobel-output', binary);
+        console.log('cv.imshow complete');
         //document.getElementById('sobel-output').classList.remove('d-none');
         outputCanvas.classList.remove('d-none');
 
         const dataURL = outputCanvas.toDataURL("image/png");
         document.getElementById("output_image_dataurl").value = dataURL;
         document.getElementById("tool").value = "sobel";
+        console.log('Output canvas dataURL length:', dataURL.length);
 
         src.delete(); gray.delete(); grad.delete();
         absGradX.delete(); absGradY.delete(); binary.delete();
