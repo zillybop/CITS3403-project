@@ -34,10 +34,7 @@ The logical layout of the website is as follows:
     - User can post images from their collection to a linear feed.
     - User can remove their images from this feed.
     - This feed also contains images that the users friends have shared on their feed.
-- Account page
-    - Allows the user to add and remove friends.
-    - Allows the user to delete their account and all associated data.
-    - Allows the user to change their password. 
+
 ### Use
 
 ## Group Members
