@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Collection{% endblock %}
+{% block title %}Upload{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/arrow-up-on-square-stack.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
+
 {% block page_header %}Upload an Image{% endblock %}
 {% block page_subheader %}Here is where you will be able to upload your data.{% endblock %}
 
 {% block content %}
-    <div class="row mb-5">
-        <div class="col-md-3 mb-4">
-            <div class="card clickable" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                <img src="{{ url_for('static', filename='images/arrow-down-tray.svg') }}"
-                     class="card-img-top"
-                     alt="Upload"
-                     style="opacity: 0.4; max-width: 100%; max-height: 200px; object-fit: contain;">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Upload Image</h5>
-                </div>
+    <!-- Upload Button -->
+    <div class="col-md-3 mb-4 mx-auto">
+        <div class="card clickable" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <img src="{{ url_for('static', filename='images/icons/arrow-up-on-square.svg') }}"
+                class="card-img-top"
+                alt="Upload"
+                style="opacity: 0.4; max-width: 100%; max-height: 100px; object-fit: contain;">
+            <div class="card-body text-center">
+                <h5 class="card-title">Upload Image</h5>
             </div>
         </div>
+    </div>
+    <div>
+        <hr>
+    </div>
+    <!-- Images -->
+    <div class="row mb-5">
         {% for image in images %}
             <div class="col-md-3 mb-4">
-                <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}"> <!--TODO this preview hasnt been implemented-->
+                <div class="card clickable" data-bs-toggle="modal" data-bs-target="#previewModal{{ image.id }}">
                     <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top" alt="{{ image.title }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ image.title }}</h5>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
+                            <img src="{{ url_for('static', filename='images/icons/trash_red.svg') }}" 
+                            class="card-image-bottom" 
+                            alt="Delete Image"
+                            style="opacity: 0.5; max-width: 10%; max-height: 10%;"
+                            onmouseover="this.style.opacity=1;" 
+                            onmouseout="this.style.opacity=0.5;">
+                        </a>
                     </div>
                 </div>
             </div>
@@ -31,35 +46,74 @@
         {% endfor %}
     </div>
 
-<!-- Upload Modal -->
-<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="uploadModalLabel">Upload a New Image</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            <div class="mb-3">
-                {{ form.title.label(class="form-label") }}
-                {{ form.title(class="form-control", placeholder="Enter image title") }}
-                {% if form.title.errors %}
-                    <div class="text-danger">{{ form.title.errors[0] }}</div>
-                {% endif %}
+    <!-- Upload Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload a New Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control", placeholder="Enter image title") }}
+                            {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.image.label(class="form-label") }}
+                            {{ form.image(class="form-control") }}
+                            {% if form.image.errors %}
+                            <div class="text-danger">{{ form.image.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3">
-                {{ form.image.label(class="form-label") }}
-                {{ form.image(class="form-control") }}
-                {% if form.image.errors %}
-                    <div class="text-danger">{{ form.image.errors[0] }}</div>
-                {% endif %}
-            </div>
-            <button type="submit" class="btn btn-primary">Upload</button>
-          </form>
         </div>
-      </div>
     </div>
-  </div>
+
+    <!--Preview Modal-->
+    {% for image in images %}
+    <div class="modal fade" id="previewModal{{ image.id }}" tabindex="-1" aria-labelledby="previewModalLabel{{ image.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel{{ image.id }}">{{ image.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="{{ image.title }}" class="img-fluid mb-3" style="max-height: 60vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!--Delete Modal-->
+    {% for image in images %}
+    <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ image.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ image.id }}">Are you sure you want to delete {{ image.title }}?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <form action="{{ url_for('upload') }}" method="post">
+                        <input type="hidden" name="image_id" value="{{ image.id }}">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger" name="delete" value="{{ image.id }}">Yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
 {% endblock %}

@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% block title %}Social{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/share.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
+
 {% block content %}
 <div class="container mt-3">
   <!-- Social Nav -->

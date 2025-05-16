@@ -1,6 +1,6 @@
 from app import app
-from flask import render_template, flash, redirect, url_for, send_from_directory
-from app.forms import LoginForm, RegisterForm, UploadForm, PostForm 
+from flask import render_template, flash, redirect, url_for, send_from_directory, request
+from app.forms import LoginForm, RegisterForm, UploadForm, PostForm
 from werkzeug.utils import secure_filename
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import LoginForm, RegisterForm, UploadForm, PostForm, ToolResultForm
@@ -8,25 +8,44 @@ from app.models import User, Image, FollowRequest, Post
 from app import db
 from flask import request, jsonify
 from sqlalchemy import func
-import os, base64
+import os, time, base64
 from werkzeug.datastructures import MultiDict
 
 #--------------- NAVBAR ROUTES -------------------------
 @app.route("/")
 @app.route("/introductory")
 def introductory():
+<<<<<<< HEAD
     return render_template("introductory.html", current_page="introductory")
+=======
+    return render_template("introductory.html", timestamp=int(time.time()))
+>>>>>>> main
 
 @app.route("/upload", methods=['GET', 'POST'])
 @login_required
 def upload():
-    form = UploadForm()
     images = Image.query.filter_by(user_id=current_user.id).all()
     print(images)
+    
+    if 'delete' in request.form:
+        image_id = request.form.get('image_id')
+        image = Image.query.filter_by(id=image_id, user_id=current_user.id).first()
+        if image:
+            filepath = os.path.join(app.root_path, 'uploads', image.filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            db.session.delete(image)
+            db.session.commit()
+            flash('Image deleted successfully!', 'success')
+        else:
+            flash('Error deleting image.', 'danger')
+        return redirect(url_for('upload'))
+    
+    form = UploadForm()
     if form.validate_on_submit():
         file = form.image.data
         image = Image(filename='', title=form.title.data, user_id=current_user.id)
-
+        
         db.session.add(image)
         db.session.flush()
         sanitized_filename = secure_filename(file.filename)
@@ -40,8 +59,8 @@ def upload():
         print(image)
         flash('Image uploaded successfully!', 'success')
         return redirect(url_for('upload'))
-
-    return render_template('upload.html', form=form, images=images, current_page="upload")
+    
+    return render_template('upload.html', form=form, images=images, timestamp=int(time.time()), current_page="upload")
 
 @app.route('/uploads/<filename>') #TODO: ensure user has access to this file
 @login_required
@@ -90,7 +109,11 @@ def social_feed():
     followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
     followed_ids.append(current_user.id)
     posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
+<<<<<<< HEAD
     return render_template('social/feed.html', posts=posts, current_page="social")
+=======
+    return render_template('social/feed.html', posts=posts, timestamp=int(time.time()))
+>>>>>>> main
 
 @app.route('/social/feed/save_photo/<int:image_id>', methods=['POST', 'GET'])
 @login_required
@@ -245,7 +268,11 @@ def list_users():
         'social/users.html',
         user_statuses=user_statuses,
         followers=followers,
+<<<<<<< HEAD
         current_page="social"
+=======
+        timestamp=int(time.time())
+>>>>>>> main
     )
 
 
@@ -279,7 +306,11 @@ def remove_follower(user_id):
 @login_required
 def inbox():
     follow_requests = current_user.followers.filter_by(accepted=False).all()
+<<<<<<< HEAD
     return render_template('social/inbox.html', requests=follow_requests, current_page="social")
+=======
+    return render_template('social/inbox.html', requests=follow_requests, timestamp=int(time.time()))
+>>>>>>> main
 
 @app.route('/social/accept_follow/<int:req_id>', methods=['POST'])
 @login_required
@@ -318,7 +349,11 @@ def create_post():
         db.session.commit()
         flash('Post created successfully!', 'success')
         return redirect(url_for('social_feed'))
+<<<<<<< HEAD
     return render_template("social/create_post.html", form=form, images=images, current_page="social")
+=======
+    return render_template("social/create_post.html", form=form, images=images, timestamp=int(time.time()))
+>>>>>>> main
 
 
 #------------------------------------- TOOL ROUTES -----------------------------------------
@@ -326,7 +361,11 @@ def create_post():
 @login_required
 def visualise():
     images = Image.query.filter_by(user_id=current_user.id).all()
+<<<<<<< HEAD
     return render_template("tools/visualise.html", images=images, current_page="tools")
+=======
+    return render_template("tools/visualise.html", images=images, timestamp=int(time.time()))
+>>>>>>> main
 
 @app.route("/tools/edge_detect", methods=['GET', 'POST'])
 @login_required
@@ -418,14 +457,19 @@ def edge_detect():
                            prefill_image_id=prefill_image_id,
                            prefill_tool=prefill_tool,
                            prefill_threshold=prefill_threshold,
-                           prefill_filename=prefill_filename
+                           prefill_filename=prefill_filename,
+                           timestamp=int(time.time())
             )
 >>>>>>> main
 
 @app.route("/tools/histogram")
 @login_required
 def histogram():
+<<<<<<< HEAD
     return render_template("tools/histogram.html", current_page="tools")
+=======
+    return render_template("tools/histogram.html", timestamp=int(time.time()))
+>>>>>>> main
 
 #------------ LOGIN ROUTES ------------------------
 @app.route("/login", methods=['GET', 'POST'])
@@ -443,7 +487,11 @@ def login():
             return redirect(url_for('introductory'))
         else:
             flash('Invalid username or password.', 'danger')
+<<<<<<< HEAD
     return render_template("login.html", form=form, current_page=None)
+=======
+    return render_template("login.html", form=form, timestamp=int(time.time()))
+>>>>>>> main
 
 @app.route('/logout')
 @login_required
@@ -464,4 +512,8 @@ def register():
         login_user(user)
         flash('Account created successfully. You are now logged in.', 'success')
         return redirect(url_for('introductory'))
+<<<<<<< HEAD
     return render_template("register.html", form=form, current_page=None)
+=======
+    return render_template("register.html", form=form, timestamp=int(time.time()))
+>>>>>>> main
