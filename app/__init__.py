@@ -16,7 +16,7 @@ app.jinja_env.globals['csrf_token'] = generate_csrf
 migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'introductory' # TODO Where to redirect if not logged in
+login_manager.login_view = 'introductory'
 login_manager.login_message = "You must be logged in to use this feature."
 login_manager.login_message_category = 'warning'
 
@@ -26,12 +26,3 @@ from app.models import User
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
-# ------------ Temporary Admin Account ------------
-from werkzeug.security import generate_password_hash
-with app.app_context():
-    if not User.query.filter_by(username='admin').first():
-        user = User(username="admin", password_hash=generate_password_hash("password"))
-        db.session.add(user)
-        db.session.commit()
