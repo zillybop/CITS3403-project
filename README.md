@@ -37,7 +37,7 @@ The logical layout of the website is as follows:
 - Account page
     - Allows the user to add and remove friends.
     - Allows the user to delete their account and all associated data.
-    - Allows the user to change their password.
+    - Allows the user to change their password. 
 ### Use
 
 ## Group Members
