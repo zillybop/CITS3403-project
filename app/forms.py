@@ -33,3 +33,10 @@ class PostForm(FlaskForm):
     subtitle = StringField('Post Subtitle', validators=[DataRequired()])
     image_id = HiddenField('Select an Image', validators=[DataRequired()])
     submit = SubmitField('Create Post')
+
+class ToolResultForm(FlaskForm):
+    tool = HiddenField('Tool', validators=[DataRequired()])
+    threshold = HiddenField('Threshold')
+    input_image_id = HiddenField('Input Image')
+    output_image_dataurl = HiddenField('Output Image Data URL', validators=[DataRequired()])
+    submit = SubmitField('Save your result')
