@@ -16,4 +16,4 @@ application-env/
 .vscode/
 
 # Mac OS specific
-.DS_Store
+.DS_Store*.pyc
