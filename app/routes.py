@@ -14,7 +14,7 @@ import os
 @app.route("/")
 @app.route("/introductory")
 def introductory():
-    return render_template("introductory.html")
+    return render_template("introductory.html", current_page="introductory")
 
 @app.route("/upload", methods=['GET', 'POST'])
 @login_required
@@ -40,7 +40,7 @@ def upload():
         flash('Image uploaded successfully!', 'success')
         return redirect(url_for('upload'))
 
-    return render_template('upload.html', form=form, images=images)
+    return render_template('upload.html', form=form, images=images, current_page="upload")
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -87,7 +87,7 @@ def social_feed():
     followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
     followed_ids.append(current_user.id)
     posts = Post.query.filter(Post.user_id.in_(followed_ids)).order_by(Post.timestamp.desc()).all()
-    return render_template('social/feed.html', posts=posts)
+    return render_template('social/feed.html', posts=posts, current_page="social")
 
 @app.route('/social/users')
 @login_required
@@ -135,7 +135,8 @@ def list_users():
     return render_template(
         'social/users.html',
         user_statuses=user_statuses,
-        followers=followers
+        followers=followers,
+        current_page="social"
     )
 
 
@@ -169,7 +170,7 @@ def remove_follower(user_id):
 @login_required
 def inbox():
     follow_requests = current_user.followers.filter_by(accepted=False).all()
-    return render_template('social/inbox.html', requests=follow_requests)
+    return render_template('social/inbox.html', requests=follow_requests, current_page="social")
 
 @app.route('/social/accept_follow/<int:req_id>', methods=['POST'])
 @login_required
@@ -197,25 +198,25 @@ def create_post():
         db.session.commit()
         flash('Post created successfully!', 'success')
         return redirect(url_for('social_feed'))
-    return render_template("social/create_post.html", form=form, images=images)
+    return render_template("social/create_post.html", form=form, images=images, current_page="social")
 
 #------------ TOOL ROUTES ------------------------
 @app.route("/tools/visualise") # This is currently "manipulate" in the nav-bar. eventually would like to put it into an analysis or more consolidated form
 @login_required
 def visualise():
     images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("tools/visualise.html", images=images)
+    return render_template("tools/visualise.html", images=images, current_page="tools")
 
 @app.route("/tools/edge_detect")
 @login_required
 def edge_detect():
     images = Image.query.filter_by(user_id=current_user.id).all()
-    return render_template("tools/edge_detect.html", images=images)
+    return render_template("tools/edge_detect.html", images=images, current_page="tools")
 
 @app.route("/tools/histogram")
 @login_required
 def histogram():
-    return render_template("tools/histogram.html")
+    return render_template("tools/histogram.html", current_page="tools")
 
 #------------ LOGIN ROUTES ------------------------
 @app.route("/login", methods=['GET', 'POST'])
@@ -233,7 +234,7 @@ def login():
             return redirect(url_for('introductory'))
         else:
             flash('Invalid username or password.', 'danger')
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, current_page=None)
 
 @app.route('/logout')
 @login_required
@@ -254,4 +255,4 @@ def register():
         login_user(user)
         flash('Account created successfully. You are now logged in.', 'success')
         return redirect(url_for('introductory'))
-    return render_template("register.html", form=form)
+    return render_template("register.html", form=form, current_page=None)

@@ -51,3 +51,7 @@
 #inbox-icon img:hover {
   content: url("/static/images/envelope-open.svg");
 }
+
+.navbar .nav-link.active {
+  color: #09579b !important;
+}
