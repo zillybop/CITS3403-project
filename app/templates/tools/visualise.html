@@ -5,7 +5,9 @@
 
 {% block tools_content %}
 <style>
+  /* add any custom styles here */
 </style>
+
 <!-- Modal for selecting image -->
 <div class="modal fade" id="imageSelectModal" tabindex="-1" aria-labelledby="imageSelectModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -15,21 +17,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <!-- your image cards go here -->
         <div class="row">
-          {% for image in images %}
-          <div class="col-md-3 mb-3">
-            <div class="card clickable"
-                 data-filename="{{ image.filename }}"
-                 data-title="{{ image.title }}"
-                 data-bs-dismiss="modal"
-                 onclick="selectImageFromCard(this)">
-              <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
-                   alt="{{ image.title }}">
-              <div class="card-body p-2 text-center">
-                <p class="card-text small">{{ image.title }}</p>
+          {% for img in images %}
+            <div class="col-md-3 mb-3">
+              <div class="card" onclick="selectImageFromCard(this)">
+                <img src="{{ url_for('static', filename=img.path) }}" class="card-img-top" alt="{{ img.name }}">
+                <div class="card-body">
+                  <p class="card-text text-truncate">{{ img.name }}</p>
+                </div>
               </div>
             </div>
-          </div>
           {% endfor %}
         </div>
       </div>
@@ -37,7 +35,6 @@
   </div>
 </div>
 
-<!-- Dashboard layout for visualisation -->
 <div class="row mt-4" style="padding-bottom: 80px;">
   <!-- Left Column: Image Preview and Metadata -->
   <div class="col-lg-6 d-flex flex-column">
@@ -45,7 +42,9 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 id="image-title" class="mb-0">Image Title</h5>
         <a href="#" data-bs-toggle="modal" data-bs-target="#imageSelectModal">
-          <img id="img_icon" class="icon-hover" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Reopen Modal" style="width: 20px; height: 20px; vertical-align: middle;">
+          <img id="img_icon" class="icon-hover"
+               src="{{ url_for('static', filename='images/arrow-path.svg') }}"
+               style="width: 20px; height: 20px; vertical-align: middle;">
         </a>
       </div>
       <div class="card-body text-center">
@@ -54,11 +53,8 @@
         </div>
         <img id="selected-image" src="" class="img-fluid d-none" alt="Selected image">
       </div>
-    </div>
-    <div class="card">
-      <div class="card-header">Image Metadata</div>
-      <div class="card-body">
-        <ul class="list-unstyled" style="margin-bottom: 0;">
+      <div class="card-footer">
+        <ul class="list-unstyled mb-0">
           <li><strong>Resolution:</strong> <span id="resolution">-</span></li>
           <li><strong>File Type:</strong> <span id="filetype">-</span></li>
         </ul>
@@ -66,19 +62,19 @@
     </div>
   </div>
 
-  <!-- Right Column: Histogram and Color Channel Breakdown -->
+  <!-- Right Column: Histogram and Colour Channel Breakdown -->
   <div class="col-lg-6 d-flex flex-column">
     <div class="card mb-4">
       <div class="card-header">Histogram</div>
       <div class="card-body text-center">
-        <p id="hist_prev">Histogram plot will appear here.</p>
+        <p id="hist_prev" class="text-muted">Histogram plot will appear here.</p>
         <canvas id="histogramChart"></canvas>
       </div>
     </div>
-    <div class="card flex-grow-1">
-      <div class="card-header">Color Channel Breakdown</div>
+    <div class="card">
+      <div class="card-header">Colour Channel Analysis</div>
       <div class="card-body text-center">
-        <p id="channel_prev">R / G / B channel views will appear here.</p>
+        <p id="channel_prev" class="text-muted">Colour channels plot will appear here.</p>
         <canvas id="colochanChart"></canvas>
       </div>
     </div>
@@ -104,14 +100,10 @@
     const blue = new Array(256).fill(0);
 
     for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const grayscale = Math.round((r + g + b) / 3);
-      histogram[grayscale]++;
-      red[r]++;
-      green[g]++;
-      blue[b]++;
+      const r = data[i], g = data[i+1], b = data[i+2];
+      const gray = Math.round((r + g + b) / 3);
+      histogram[gray]++;
+      red[r]++; green[g]++; blue[b]++;
     }
 
     return { histogramData: histogram, colorChanData: { red, green, blue } };
@@ -120,50 +112,68 @@
   let histogramChartInstance = null;
   let colorChartInstance = null;
 
-  window.selectImageFromCard = function (card) {
+  window.selectImageFromCard = function(card) {
     handleImageSelection(card, {
-        imgElement: document.getElementById('selected-image'),
-        labelElement: document.getElementById('image-title'),
-        placeholderElement: document.getElementById('image-placeholder'),
-        placeholderIds: ["channel_prev", "hist_prev"],
-        resolutionElement: document.getElementById('resolution'),
-        fileTypeElement: document.getElementById('filetype'),
-        iconElement: document.getElementById('img_icon'),
-        updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
+      imgElement:       document.getElementById('selected-image'),
+      labelElement:     document.getElementById('image-title'),
+      placeholderElement: document.getElementById('image-placeholder'),
+      placeholderIds:   ["channel_prev", "hist_prev"],
+      resolutionElement: document.getElementById('resolution'),
+      fileTypeElement:   document.getElementById('filetype'),
+      iconElement:       document.getElementById('img_icon'),
+      updateIcon:        "{{ url_for('static', filename='images/arrow-path.svg') }}",
       onImageSelected: () => {
-        const img = document.getElementById('selected-image');
-        const { histogramData, colorChanData } = calculateImageData(img);
+        const img   = document.getElementById('selected-image');
+        const resEl = document.getElementById('resolution');
+        const ftEl  = document.getElementById('filetype');
 
+        const render = () => {
+          // Metadata
+          resEl.textContent = img.naturalWidth + '×' + img.naturalHeight;
+          ftEl.textContent  = img.src.split('.').pop();
 
-        if (histogramChartInstance) histogramChartInstance.destroy();
-        const ctx = document.getElementById('histogramChart').getContext('2d');
-        histogramChartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Array.from({ length: 256 }, (_, i) => i),
-            datasets: [{
-              label: 'Intensity Distribution',
-              data: histogramData,
-              backgroundColor: 'rgba(54, 162, 235, 0.6)'
-            }]
-          },
-          options: { scales: { y: { beginAtZero: true } } }
-        });
+          // Data extraction
+          const { histogramData, colorChanData } = calculateImageData(img);
 
-        if (colorChartInstance) colorChartInstance.destroy();
-        const ctxColor = document.getElementById('colochanChart').getContext('2d');
-        colorChartInstance = new Chart(ctxColor, {
-          type: 'bar',
-          data: {
-            labels: Array.from({ length: 256 }, (_, i) => i),
-            datasets: [
-              { label: 'Red Channel', data: colorChanData.red, backgroundColor: 'rgba(255, 99, 132, 0.5)' },
-              { label: 'Green Channel', data: colorChanData.green, backgroundColor: 'rgba(75, 192, 192, 0.5)' },
-              { label: 'Blue Channel', data: colorChanData.blue, backgroundColor: 'rgba(54, 162, 235, 0.5)' }
-            ]
-          },
-          options: { scales: { y: { beginAtZero: true } } }
-        });
+          // Intensity histogram
+          if (histogramChartInstance) histogramChartInstance.destroy();
+          const ctxH = document.getElementById('histogramChart').getContext('2d');
+          histogramChartInstance = new Chart(ctxH, {
+            type: 'bar',
+            data: {
+              labels: Array.from({ length: 256 }, (_, i) => i),
+              datasets: [{
+                label: 'Intensity Distribution',
+                data: histogramData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+              }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+          });
+
+          // Colour channels
+          if (colorChartInstance) colorChartInstance.destroy();
+          const ctxC = document.getElementById('colochanChart').getContext('2d');
+          colorChartInstance = new Chart(ctxC, {
+            type: 'bar',
+            data: {
+              labels: Array.from({ length: 256 }, (_, i) => i),
+              datasets: [
+                { label: 'Red Channel', data: colorChanData.red },
+                { label: 'Green Channel', data: colorChanData.green },
+                { label: 'Blue Channel', data: colorChanData.blue }
+              ]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+          });
+        };
+
+        // Only run once image is fully loaded
+        if (img.complete && img.naturalWidth > 0) {
+          render();
+        } else {
+          img.addEventListener('load', render, { once: true });
+        }
       }
     });
   };
