@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}Home{% endblock %}
+{% block icon %}<link rel="icon" href="{{ url_for('static', filename='images/favicons/bookmark.svg') }}?v={{ timestamp }}" type="svg+xml">{% endblock %}
+
 {% block page_header %}Computer Vision Toolkit{% endblock %}
 {% block page_subheader %}Log in to get started.{% endblock %}
 {% block content %}
