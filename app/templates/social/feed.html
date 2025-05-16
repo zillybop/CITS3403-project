@@ -21,12 +21,27 @@
       </div>
     </div>
     <div class="card-body">
-      <h5 class="card-title">{{ post.title }}</h5>
-      <p class="card-text text-muted">Posted by <strong>{{ post.user.username }}</strong> • {{ post.timestamp.strftime('%b %d, %Y %I:%M %p') }}</p>
-      <p class="card-text">{{ post.subtitle }}</p>
-      <a href="#" class="btn btn-outline-danger btn-sm">🌄 Visualise</a>
-      <a href="#" class="btn btn-outline-primary btn-sm">💬 Comment</a>
-      <a href="#" class="btn btn-outline-success btn-sm">⬇️ Download</a>
+      <h5 class="card-title">
+        {{ post.title }}
+        {% if post.image.source_type == 'tool-generated' %}
+          <span class="badge bg-secondary ms-2">GEN</span>
+        {% else %}
+          <span class="badge bg-info ms-2">UPLOAD</span>
+        {% endif %}
+      </h5>
+      {% if post.image.source_type == 'tool-generated' %}
+        <p class="card-text text-muted">Posted by <strong>{{ post.user.username }}</strong> • {{ post.timestamp.strftime('%b %d, %Y %I:%M %p') }}</p>
+        <p class="card-text">{{ post.subtitle }}</p>
+        <a href="{{ url_for('reopen_tool', image_id=post.image.id) }}" class="btn btn-outline-danger btn-sm">🛠️ Try This Tool</a>
+        <a href="#" class="btn btn-outline-primary btn-sm d-none">💬 Comment</a><!-- Note: not being displayed, can add later -->
+        <a href="{{ url_for('save_photo', image_id=post.image.id) }}" class="btn btn-outline-success btn-sm">⬇️ Add Image</a>
+      {% else %}
+        <p class="card-text text-muted">Posted by <strong>{{ post.user.username }}</strong> • {{ post.timestamp.strftime('%b %d, %Y %I:%M %p') }}</p>
+        <p class="card-text">{{ post.subtitle }}</p>
+        <a href="#" class="btn btn-outline-danger btn-sm d-none">🌄 Visualise</a><!-- Note: not being displayed, can add later -->
+        <a href="#" class="btn btn-outline-primary btn-sm d-none">💬 Comment</a><!-- Note: not being displayed, can add later -->
+        <a href="{{ url_for('save_photo', image_id=post.image.id) }}" class="btn btn-outline-success btn-sm">⬇️ Add Image</a>
+      {% endif %}
     </div>
   </div>
 {% endfor %}

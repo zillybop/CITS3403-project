@@ -19,7 +19,8 @@
                 <div class="row">
                     {% for image in images %}
                     <div class="col-md-3 mb-3">
-                        <div class="card clickable" data-filename="{{ image.filename }}" data-title="{{ image.title }}"
+                        <div class="card clickable" data-id=" {{ image.id }} "
+                                    data-filename="{{ image.filename }}" data-title="{{ image.title }}"
                             data-bs-dismiss="modal" onclick="selectImageFromCard(this)">
                             <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
                                 alt="{{ image.title }}">
@@ -66,6 +67,12 @@
                 <label id="threshold_label" for="sobel-threshold" class="form-label">Edge Threshold 100</label>
                 <input type="range" class="form-range" id="sobel-threshold" min="0" max="255" value="100">
             </div>
+            <div class="mt-3 text-end">
+                <form action="{{ url_for('edge_detect') }}" method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    {{ form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
         </div>
 
         <!-- Additional algorithm fragments can go here -->
@@ -81,11 +88,25 @@
     </div>
 </div>
 <script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const tool = document.getElementById("tool")?.value;
+        const threshold = document.getElementById("threshold")?.value;
+        const inputImage_id = document.getElementById("input_image_id")?.value;
+        const dataURL = document.getElementById("output_image_dataurl")?.value;
+
+        console.log("Form is submitting with:");
+        console.log("  tool:", tool);
+        console.log("  threshold:", threshold);
+        console.log("  input_image_id:", inputImage_id);
+        console.log("  output_image_dataurl (length):", dataURL?.length);
+    });
     let originalMat = null; // Image cached for memory – avoids multiple readbacks (imread) in runSobel()
     
     document.getElementById('sobel-threshold').addEventListener('input', () => {
         console.log('slider moved');
-        document.getElementById('threshold_label').innerHTML = "Edge Threshold " + parseInt(document.getElementById('sobel-threshold').value);
+        const threshold = document.getElementById('sobel-threshold').value;
+        document.getElementById("threshold").value = threshold;
+        document.getElementById('threshold_label').innerHTML = "Edge Threshold " + parseInt(threshold);
         if (cvReady && typeof cv !== 'undefined' && cv.imread) {
             runSobel();
         }
@@ -97,6 +118,9 @@
 
         const outContainer = document.getElementById('sobel-output-container');
         outContainer.classList.remove('card-image-preview', 'image-placeholder');
+
+        const selectedImageId = card.getAttribute('data-id');
+        document.getElementById("input_image_id").value = selectedImageId || "";
 
         import("{{ url_for('static', filename='js/imageSelector.js') }}").then(module => {
             module.handleImageSelection(card, {
@@ -133,11 +157,6 @@
             });
         });
     }
-    let cvReady = false;
-    function onOpenCvReady() {
-        console.log('OpenCV.js is ready!');
-        cvReady = true;
-    }
 
     function runSobel() {
         console.log('running sobel');
@@ -166,9 +185,70 @@
         //document.getElementById('sobel-output').classList.remove('d-none');
         outputCanvas.classList.remove('d-none');
 
+        const dataURL = outputCanvas.toDataURL("image/png");
+        document.getElementById("output_image_dataurl").value = dataURL;
+        document.getElementById("tool").value = "sobel";
+
         src.delete(); gray.delete(); grad.delete();
         absGradX.delete(); absGradY.delete(); binary.delete();
         console.log('finished running sobel');
+        
     }
+
+
+
+    
+    window.addEventListener("DOMContentLoaded", () => {
+        const prefillImageId = {{ prefill_image_id or 'null' }};
+        const prefillThreshold = {{ prefill_threshold or 'null' }};
+        console.log("DOMContentLoaded: prefillImageId = " + prefillImageId + ", prefillThreshold = " + prefillThreshold)
+        
+        if (prefillThreshold !== null) {
+            const slider = document.getElementById('sobel-threshold');
+            const label = document.getElementById('threshold_label');
+            slider.value = prefillThreshold;
+            label.innerHTML = "Edge Threshold " + parseInt(prefillThreshold);
+            document.getElementById("threshold").value = prefillThreshold;
+        }
+
+        if (prefillImageId !== null) {
+            let imageCard = document.querySelector(`[data-id='${prefillImageId}']`);
+            if (!imageCard) {
+                console.log("Creating hidden synthetic image card for:", prefillImageId);
+                imageCard = document.createElement('div');
+                imageCard.setAttribute('data-id', prefillImageId);
+                imageCard.setAttribute('data-title', 'Preloaded Image');
+                imageCard.setAttribute('data-filename', `${prefillImageId}.png`);
+
+                const img = document.createElement('img');
+
+                const prefillFilename = "{{ prefill_filename or '' }}";
+                img.src = `/uploads/${prefillFilename}`;
+                imageCard.setAttribute('data-filename', prefillFilename);
+                imageCard.appendChild(img);
+
+                let ghostContainer = document.getElementById("synthetic-image-holder");
+                if (!ghostContainer) {
+                    ghostContainer = document.createElement("div");
+                    ghostContainer.id = "synthetic-image-holder";
+                    ghostContainer.style.display = "none";
+                    document.body.appendChild(ghostContainer);
+                }
+                ghostContainer.appendChild(imageCard);
+
+                img.onload = () => {
+                    if (typeof cv !== "undefined" && cv.Mat) {
+                        selectImageFromCard(imageCard);
+                    } else {
+                        cv['onRuntimeInitialized'] = () => {
+                            selectImageFromCard(imageCard);
+                        };
+                    }
+                };
+            } else {
+                selectImageFromCard(imageCard);
+            }
+        }
+    });
 </script>
 {% endblock %}
