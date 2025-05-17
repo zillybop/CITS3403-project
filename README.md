@@ -43,8 +43,8 @@ The logical layout of the website is as follows:
 ## Group Members
 | UWA ID | Name | Github Username |
 |--------|------|-----------------|
-| 23815348 | Aaron Barneveld Labbe | Attempt-27 |
 | 23804015 | Alec Hassell | zillybop |
+| 23815348 | Aaron Barneveld Labbe | Attempt-27 |
 | 24265974 | Audrey Tan | aud-tan |
 | 23476285 | Ryan Allagapen | teylan3007 |
 
@@ -90,6 +90,11 @@ For a more detailed report, you can generate an HTML report:
 coverage html
 ```
 
+## Selenium tests
+To run the selenium tests:
+```bash
+python3 -m unittest app.tests.selenium.test_selenium     
+```
 
 
 # Demonstration Database
