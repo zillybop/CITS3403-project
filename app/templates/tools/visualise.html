@@ -23,7 +23,7 @@
                  data-title="{{ image.title }}"
                  data-bs-dismiss="modal"
                  onclick="selectImageFromCard(this)">
-              <img src="{{ url_for('uploaded_file', filename=image.filename) }}" class="card-img-top"
+              <img src="{{ url_for('main.uploaded_file', filename=image.filename) }}" class="card-img-top"
                    alt="{{ image.title }}">
               <div class="card-body p-2 text-center">
                 <p class="card-text small">{{ image.title }}</p>
