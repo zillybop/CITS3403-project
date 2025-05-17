@@ -8,6 +8,10 @@ __pycache__/
 # Instance (config overrides and runtime data)
 instance/
 
+# Test Coverage Output
+.coverage
+/htmlcov
+
 # Environment files
 application-env/
 .env
