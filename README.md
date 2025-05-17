@@ -73,7 +73,27 @@ flask run
 ```
 
 # Instructions for tests
-Some dummy accounts have been created for testing purposes. The credentials are as follows:
+## Simple tests
+From the root directory of the project, run the following command:
+```bash
+python3 -m unittest discover -s app/tests
+```
+
+## Coverage tests
+To see the coverage report, run:
+```bash
+coverage run -m unittest discover -s app/tests
+coverage report -m
+```
+For a more detailed report, you can generate an HTML report:
+```bash
+coverage html
+```
+
+
+
+# Demonstration Database
+Some dummy accounts have been created for demonstration purposes. The credentials are as follows:
 |username|password|
 |--------|-------|
 |admin  |password|

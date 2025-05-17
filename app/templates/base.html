@@ -33,15 +33,15 @@
         {% if current_user.is_authenticated %}
         {# Envelope Icon commented out
         {% if request.endpoint != 'inbox' %}
-        <a href="{{ url_for('inbox') }}" class="me-3" id="inbox-icon">
+        <a href="{{ url_for('main.inbox') }}" class="me-3" id="inbox-icon">
           <img src="{{ url_for('static', filename='images/envelope.svg') }}" alt="Inbox" height="24">
         </a>
         {% endif %}
         #}
         <span class="me-3">Hello, {{ current_user.username }}!</span>
-        <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn">Log out</a>
+        <a href="{{ url_for('main.logout') }}" class="btn btn-outline-primary btn">Log out</a>
         {% else %}
-        <a href="{{ url_for('login') }}" class="btn btn-primary btn">Log in</a>
+        <a href="{{ url_for('main.login') }}" class="btn btn-primary btn">Log in</a>
         {% endif %}
       </div>
     </div>

@@ -5,12 +5,16 @@ __pycache__/
 
 # SQLite database (if you're not required to commit it) app/app.db
 
+# Instance (config overrides and runtime data)
+instance/
+
+# Test Coverage Output
+.coverage
+/htmlcov
+
 # Environment files
 application-env/
 .env
-
-# Migrations (optional — check if you're required to commit these!)
-# migrations/
 
 # VS Code settings (optional)
 .vscode/

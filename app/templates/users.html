@@ -10,7 +10,7 @@
     {% for user, status in user_statuses %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         {{ user.username }}
-        <form method="post" action="{{ url_for('send_follow_request', user_id=user.id) }}">
+        <form method="post" action="{{ url_for('main.send_follow_request', user_id=user.id) }}">
           {%  if status == -1 %}<button type="submit" class="btn btn-primary btn-sm">Follow</button>
           {% elif status == 0 %}<button type="button" class="btn btn-warning btn-sm" disabled>Requested</button>
           {% elif status == 1 %}<button type="button" class="btn btn-success btn-sm" disabled>Following</button>
@@ -21,5 +21,5 @@
       <li class="list-group-item">No other users to follow.</li>
     {% endfor %}
   </ul>
-  <a href="{{ url_for('follow_requests') }}" class="btn btn-primary btn">Manage your follow requests</a>
+  <a href="{{ url_for('main.follow_requests') }}" class="btn btn-primary btn">Manage your follow requests</a>
 {% endblock %}

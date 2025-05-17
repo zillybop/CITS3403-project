@@ -10,7 +10,7 @@
         <div>
           <strong>Follow Request</strong> from {{ message.follower.username }}
         </div>
-        <form method="post" action="{{ url_for('accept_follow', req_id=message.id) }}">
+        <form method="post" action="{{ url_for('main.accept_follow', req_id=message.id) }}">
           <button type="submit" class="btn btn-success btn-sm">Accept</button>
         </form>
       </li>
