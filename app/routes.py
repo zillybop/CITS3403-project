@@ -33,7 +33,9 @@ def upload():
         sanitized_filename = secure_filename(file.filename)
         ext = sanitized_filename.rsplit('.', 1)[1].lower()
         filename = f"{image.id}.{ext}"
-        filepath = os.path.join('app/uploads', filename)
+        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        #filepath = os.path.join('app/uploads', filename)
         file.save(filepath)
 
         image.filename = filename
@@ -47,7 +49,7 @@ def upload():
 @bp.route('/uploads/<filename>') #TODO: ensure user has access to this file
 @login_required
 def uploaded_file(filename):
-    upload_folder = os.path.join(current_app.root_path, 'uploads')
+    upload_folder = current_app.config['UPLOAD_FOLDER']     #os.path.join(current_app.root_path, 'uploads')
     return send_from_directory(upload_folder, filename)
 
 @bp.route('/social')
@@ -124,10 +126,12 @@ def save_photo(image_id):
     db.session.flush()
 
     # Copy the file
-    old_path = os.path.join(current_app.root_path, "uploads", original.filename)
+    old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], original.filename)
+    #old_path = os.path.join(current_app.root_path, "uploads", original.filename)
     ext = original.filename.rsplit(".", 1)[1]
     new_filename = f"{new_image.id}_copy.{ext}"
-    new_path = os.path.join(current_app.root_path, "uploads", new_filename)
+    new_path = os.path.join(current_app.config['UPLOAD_FOLDER'], new_filename)
+    #new_path = os.path.join(current_app.root_path, "uploads", new_filename)
 
     with open(old_path, "rb") as f_in, open(new_path, "wb") as f_out:
         f_out.write(f_in.read())
@@ -141,7 +145,10 @@ def save_photo(image_id):
 @bp.route('/social/feed/reopen_tool/<int:image_id>')
 @login_required
 def reopen_tool(image_id):
-    derived = Image.query.get_or_404(image_id)
+    derived = Image.query.get(image_id)
+    if not derived:
+        flash("Image not found.", "danger")
+        return redirect(url_for("main.edge_detect"))
 
     # Check that image is shared via a visible post
     followed_ids = [fr.followed_id for fr in current_user.following.filter_by(accepted=True)]
@@ -178,8 +185,10 @@ def reopen_tool(image_id):
 
         ext = input_image.filename.rsplit(".", 1)[1]
         new_filename = f"{new_input.id}_copy.{ext}"
-        old_path = os.path.join(current_app.root_path, "uploads", input_image.filename)
-        new_path = os.path.join(current_app.root_path, "uploads", new_filename)
+        #old_path = os.path.join(current_app.root_path, "uploads", input_image.filename)
+        old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], input_image.filename)
+        #new_path = os.path.join(current_app.root_path, "uploads", new_filename)
+        new_path = os.path.join(current_app.config['UPLOAD_FOLDER'], new_filename)
 
         with open(old_path, "rb") as f_in, open(new_path, "wb") as f_out:
             f_out.write(f_in.read())
@@ -284,7 +293,10 @@ def inbox():
 @bp.route('/social/accept_follow/<int:req_id>', methods=['POST'])
 @login_required
 def accept_follow(req_id):
-    fr = FollowRequest.query.get_or_404(req_id)
+    fr = FollowRequest.query.filter_by(id=req_id).first()
+    if not fr:
+        flash("Follow request not found.", "danger")
+        return redirect(url_for('main.inbox'))
     if fr.followed_id == current_user.id:
         fr.accepted = True
         db.session.commit()
@@ -392,7 +404,9 @@ def edge_detect():
             db.session.flush()
 
             filename = f"{new_image.id}_{tool}_{threshold}.png"
-            filepath = os.path.join(current_app.root_path, "uploads", filename)
+            #filepath = os.path.join(current_app.root_path, "uploads", filename)
+            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
             with open(filepath, "wb") as f:
                 f.write(image_bytes)
 
