@@ -11,7 +11,7 @@
         <div class="row justify-content-center w-100">
             <div class="col-md-4 position-relative">
                 <h2 class="text-center mb-4">Login</h2>
-                <form method="POST" action="{{ url_for('login') }}">
+                <form method="POST" action="{{ url_for('main.login') }}">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         {{ form.username.label(class="form-label") }}
@@ -38,7 +38,7 @@
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
                 <p class="text-center mt-3">
-                    <a href="{{ url_for('register') }}">Create Account</a>
+                    <a href="{{ url_for('main.register') }}">Create Account</a>
                 </p>
                 {% with messages = get_flashed_messages(with_categories=True) %}
                     {% if messages %}
