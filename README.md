@@ -85,6 +85,10 @@ To see the coverage report, run:
 coverage run -m unittest discover -s app/tests
 coverage report -m
 ```
+For a more detailed report, you can generate an HTML report:
+```bash
+coverage html
+```
 
 
 
