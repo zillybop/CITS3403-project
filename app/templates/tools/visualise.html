@@ -132,38 +132,44 @@
         updateIcon: "{{ url_for('static', filename='images/arrow-path.svg') }}",
       onImageSelected: () => {
         const img = document.getElementById('selected-image');
-        const { histogramData, colorChanData } = calculateImageData(img);
 
+        img.onload = () => {
+          const { histogramData, colorChanData } = calculateImageData(img);
 
-        if (histogramChartInstance) histogramChartInstance.destroy();
-        const ctx = document.getElementById('histogramChart').getContext('2d');
-        histogramChartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Array.from({ length: 256 }, (_, i) => i),
-            datasets: [{
-              label: 'Intensity Distribution',
-              data: histogramData,
-              backgroundColor: 'rgba(54, 162, 235, 0.6)'
-            }]
-          },
-          options: { scales: { y: { beginAtZero: true } } }
-        });
+          if (histogramChartInstance) histogramChartInstance.destroy();
+          const ctx = document.getElementById('histogramChart').getContext('2d');
+          histogramChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: Array.from({ length: 256 }, (_, i) => i),
+              datasets: [{
+                label: 'Intensity Distribution',
+                data: histogramData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+              }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+          });
 
-        if (colorChartInstance) colorChartInstance.destroy();
-        const ctxColor = document.getElementById('colochanChart').getContext('2d');
-        colorChartInstance = new Chart(ctxColor, {
-          type: 'bar',
-          data: {
-            labels: Array.from({ length: 256 }, (_, i) => i),
-            datasets: [
-              { label: 'Red Channel', data: colorChanData.red, backgroundColor: 'rgba(255, 99, 132, 0.5)' },
-              { label: 'Green Channel', data: colorChanData.green, backgroundColor: 'rgba(75, 192, 192, 0.5)' },
-              { label: 'Blue Channel', data: colorChanData.blue, backgroundColor: 'rgba(54, 162, 235, 0.5)' }
-            ]
-          },
-          options: { scales: { y: { beginAtZero: true } } }
-        });
+          if (colorChartInstance) colorChartInstance.destroy();
+          const ctxColor = document.getElementById('colochanChart').getContext('2d');
+          colorChartInstance = new Chart(ctxColor, {
+            type: 'bar',
+            data: {
+              labels: Array.from({ length: 256 }, (_, i) => i),
+              datasets: [
+                { label: 'Red Channel', data: colorChanData.red, backgroundColor: 'rgba(255, 99, 132, 0.5)' },
+                { label: 'Green Channel', data: colorChanData.green, backgroundColor: 'rgba(75, 192, 192, 0.5)' },
+                { label: 'Blue Channel', data: colorChanData.blue, backgroundColor: 'rgba(54, 162, 235, 0.5)' }
+              ]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+          });
+        };
+
+        if (img.complete) {
+          img.onload();
+        }
       }
     });
   };
